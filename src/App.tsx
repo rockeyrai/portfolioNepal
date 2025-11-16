@@ -5,6 +5,11 @@
  * @format
  */
 
+// On device: Portfolio Nepal
+// Internal App Registry name: PortfolioNepal
+// Bundle/package name: com.portfolionepal.app 
+
+
 import { NewAppScreen } from '@react-native/new-app-screen';
 import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
 import {
