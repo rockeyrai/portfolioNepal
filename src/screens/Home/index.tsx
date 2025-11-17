@@ -1,8 +1,9 @@
 import React from 'react'
+import { Text } from 'react-native'
 
 const HomeScreen = () => {
   return (
-    <div>HomeScreen</div>
+    <Text>fdafdafadfa</Text>
   )
 }
 

@@ -24,6 +24,8 @@ import GoogleLogo from '../../assets/logo/google_logo.svg';
 import { useThemeColors } from '../../utils/ColorTheme';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../services';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AppStackParamList, AuthStackParamList } from '../../navigation/types';
 
 const schema = z.object({
   name: z.string().optional(),
@@ -44,12 +46,18 @@ export type LoginFormProps = {
   onSubmit?: SubmitHandler<FormType>;
 };
 
+type RegisterRoute = NativeStackNavigationProp<AuthStackParamList, 'register'>;
+// type HomeRoute = NativeStackNavigationProp<AppStackParamList, "Home">;
+type PrivacyRoute = NativeStackNavigationProp<AuthStackParamList, 'privacy'>;
+
 export const LoginForm = ({ onSubmit = () => {} }: any) => {
   const [accepted, setAccepted] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { colors } = useThemeColors();
-  const navigation = useNavigation<LoginScreenProp>();
+  const routeRegister = useNavigation<RegisterRoute>();
+  // const routeHome = useNavigation<HomeRoute>();
+  const routePrivacy = useNavigation<PrivacyRoute>();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -78,6 +86,8 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
   const signin = async () => {
     try {
       await GoogleSignin.hasPlayServices();
+      await GoogleSignin.revokeAccess();
+      await GoogleSignin.signOut();
       const user = await GoogleSignin.signIn();
 
       const name = user?.data?.user?.name;
@@ -104,7 +114,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
       };
 
       signInDirect(token);
-      navigation.navigate('home');
+      // routeHome.navigate('Home');
     } catch (e: any) {
       console.error('Sign-in Error:', e.message || e);
     }
@@ -280,7 +290,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
                     color: colors.accent,
                     textDecorationLine: 'underline',
                   }}
-                  onPress={() => navigation.navigate('privacy')}
+                  onPress={() => routePrivacy.navigate('privacy')}
                 >
                   Terms and Conditions
                 </Text>
@@ -313,7 +323,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
 
             {/* Register Button */}
             <TouchableOpacity
-              onPress={() => navigation.navigate('register')}
+              onPress={() => routeRegister.navigate('register')}
               style={{
                 borderWidth: 1,
                 borderColor: colors.border,

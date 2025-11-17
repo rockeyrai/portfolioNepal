@@ -1,6 +1,8 @@
 // src/navigation/types.ts
 export type AuthStackParamList = {
   Login: undefined;
+  register:undefined;
+  privacy:undefined
 };
 
 export type SubscriptionStackParamList = {

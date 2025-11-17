@@ -1,8 +1,9 @@
 import React from 'react'
+import { Text } from 'react-native'
 
 const SubscribeScreen = () => {
   return (
-    <div>SubscribeScreen</div>
+    <Text>SubscribeScreen</Text>
   )
 }
 
