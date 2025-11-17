@@ -7,7 +7,10 @@ import AppStack from './AppStack';
 import { RootState } from '../redux/store'; 
 
 const AppNavigator = () => {
-  const { isLoggedIn, isSubscribed } = useSelector((state: RootState) => state.auth);
+  const { token, user } = useSelector((state: RootState) => state.auth);
+
+  const isLoggedIn = !!token;
+  const isSubscribed = user?.is_subscribed === 1;
 
   return (
     <NavigationContainer>
