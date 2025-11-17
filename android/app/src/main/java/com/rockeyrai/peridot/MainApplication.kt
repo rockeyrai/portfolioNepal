@@ -1,4 +1,4 @@
-package com.portfolionepal.app
+package com.rockeyrai.peridot;
 
 import android.app.Application
 import com.facebook.react.PackageList
