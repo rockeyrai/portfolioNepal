@@ -98,6 +98,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
       if (!email) throw new Error('No email returned from Google Sign-In');
 
       const response: any = await continueWithGoogle({ name, email });
+      console.log(user)
 
       if (
         !response?.data?.data?.accessToken ||
