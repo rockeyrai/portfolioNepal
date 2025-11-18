@@ -11,7 +11,6 @@ type LoginScreenProp = NativeStackNavigationProp<AuthStackParamList, "Login">;
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenProp>();
 
-  // Handle hardware back button
   useFocusEffect(
     React.useCallback(() => {
       const backHandler = BackHandler.addEventListener(
@@ -21,7 +20,7 @@ const LoginScreen = () => {
             if (val === "true") {
               BackHandler.exitApp();
             } else {
-              navigation.navigate("Login"); // navigate to Login screen in stack
+              navigation.goBack(); 
             }
           });
           return true;
@@ -34,9 +33,9 @@ const LoginScreen = () => {
 
   const onSubmit: LoginFormProps["onSubmit"] = async (data) => {
     await AsyncStorage.setItem("FistLoginIn", "true");
-    // Navigate to your app stack after login
-    // Example:
-    // navigation.replace("App"); // if you have a RootStack with App stack
+
+    // After login, navigate to App stack inside RootStack
+    navigation.getParent()?.navigate("App");
   };
 
   return <LoginForm onSubmit={onSubmit} />;
