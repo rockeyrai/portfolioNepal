@@ -12,6 +12,7 @@ import { useThemeColors } from '../utils/ColorTheme';
 import { GradientIcon, GradientText } from './ui/GradientText';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../navigation/types';
+import LinearGradient from 'react-native-linear-gradient';
 
 type BottomNavProp = NativeStackNavigationProp<AppStackParamList>;
 
@@ -74,7 +75,19 @@ export default function BottomNav() {
   };
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.navBackground }]}>
+    <View
+      style={[
+        styles.container,
+        { borderColor: colors.secondBackground, borderWidth: 0 },
+      ]}
+    >
+      <LinearGradient
+        colors={['rgb(64,64,79)', 'rgb(28,28,33)']}
+        start={{ x: 0.5, y: 0.2 }}
+        end={{ x: 0.5, y: 1 }}
+        style={styles.gradient}
+      />
+
       {navItems1.map(renderNavItem)}
 
       <TouchableOpacity
@@ -107,14 +120,19 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    height: 50,
-    borderTopWidth: 1,
+    height: 45,
+    borderTopWidth: 0,
     borderRadius: 20,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.25,
     shadowRadius: 4,
-    elevation: 5,
+    elevation: 2,
+    // overflow:"hidden"
+  },
+  gradient: {
+    ...StyleSheet.absoluteFillObject,
+    borderRadius: 20, // important to clip gradient within container
   },
   navButton: {
     flex: 1,

@@ -18,6 +18,7 @@ import { useThemeColors } from "../../utils/ColorTheme";
 import ExpandCard from "../../components/cards/ExpandCard";
 import Slicecard from "../../components/cards/SliceCard";
 import ThemeToggle from "../../components/ui/CustomeThemeToggle";
+import BottomNavLayout from "../../layouts/BottomNav";
 
 interface Section {
   id: string;
@@ -44,6 +45,7 @@ const ProfileScreen=()=> {
   ];
 
   return (
+    <BottomNavLayout>
     <ScrollView
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
@@ -52,11 +54,7 @@ const ProfileScreen=()=> {
     >
       {/* Header */}
       <View style={[styles.header, { paddingHorizontal: 16 }]}>
-        <View style={styles.headerTop}>
-          <Text style={[styles.headerTitle, { color: colors.text }]}>
-            Profile
-          </Text>
-        </View>
+
 
         {/* Profile Picture and Name */}
         <View style={styles.profileSection}>
@@ -77,15 +75,7 @@ const ProfileScreen=()=> {
 
       {/* Sections Container */}
       <ThemeToggle />
-      {/* <View className="flex flex-row justify-between items-center px-4 pr-10 ">
-        <Text style={[{ color: colors.text }]}>Active Status</Text>
-        <Text
-          style={[{ fontWeight: 600, fontSize: 14, color: colors.positive }]}
-        >
-          ON
-        </Text>
-    
-      </View> */}
+
       <View style={{ marginTop: 0, paddingHorizontal: 16 }}>
         {/* Basic Information */}
         <Text style={[styles.sectionTitle, { color: colors.secondaryText }]}>
@@ -182,6 +172,8 @@ const ProfileScreen=()=> {
         </View>
       </View>
     </ScrollView>
+    </BottomNavLayout>
+
   );
 }
 

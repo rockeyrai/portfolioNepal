@@ -1,7 +1,5 @@
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import React, { useEffect, useState } from 'react';
-import type { SubmitHandler } from 'react-hook-form';
-import * as z from 'zod';
 import LinearGradient from 'react-native-linear-gradient';
 
 import {
@@ -27,33 +25,13 @@ import api from '../../services';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList, AuthStackParamList } from '../../navigation/types';
 
-const schema = z.object({
-  name: z.string().optional(),
-  email: z
-    .string({
-      required_error: 'Email is required',
-    })
-    .email('Invalid email format'),
-  password: z
-    .string({
-      required_error: 'Password is required',
-    })
-    .min(6, 'Password must be at least 6 characters'),
-});
-
-export type FormType = z.infer<typeof schema>;
-export type LoginFormProps = {
-  onSubmit?: SubmitHandler<FormType>;
-};
 
 type RegisterRoute = NativeStackNavigationProp<AuthStackParamList, 'register'>;
 // type HomeRoute = NativeStackNavigationProp<AppStackParamList, "Home">;
 type PrivacyRoute = NativeStackNavigationProp<AuthStackParamList, 'privacy'>;
 
 export const LoginForm = ({ onSubmit = () => {} }: any) => {
-  const [accepted, setAccepted] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+
   const { colors } = useThemeColors();
   const routeRegister = useNavigation<RegisterRoute>();
   // const routeHome = useNavigation<HomeRoute>();
@@ -209,143 +187,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
               </Text>
             </View>
 
-            {/* Email Input */}
-            <View style={{ marginBottom: 20, width: '100%' }}>
-              <TextInput
-                placeholder="Email"
-                placeholderTextColor={colors.muted}
-                value={email}
-                onChangeText={setEmail}
-                style={{
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  color: colors.text,
-                  backgroundColor: colors.card,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: 16,
-                }}
-              />
-            </View>
 
-            {/* Password Input */}
-            <View style={{ marginBottom: 20, width: '100%' }}>
-              <TextInput
-                placeholder="Password"
-                placeholderTextColor={colors.muted}
-                secureTextEntry
-                value={password}
-                onChangeText={setPassword}
-                style={{
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  color: colors.text,
-                  backgroundColor: colors.card,
-                  paddingHorizontal: 16,
-                  paddingVertical: 10,
-                  borderRadius: 16,
-                }}
-              />
-            </View>
-
-            {/* Terms & Conditions */}
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                marginBottom: 24,
-                width: '100%',
-              }}
-            >
-              <TouchableOpacity onPress={() => setAccepted(prev => !prev)}>
-                <View
-                  style={{
-                    width: 24,
-                    height: 24,
-                    borderWidth: 2,
-                    borderColor: accepted ? colors.primary : colors.border,
-                    backgroundColor: accepted ? colors.primary : 'transparent',
-                    marginRight: 10,
-                    borderRadius: 6,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  {accepted && (
-                    <View
-                      style={{
-                        width: 10,
-                        height: 5,
-                        borderBottomWidth: 2,
-                        borderLeftWidth: 2,
-                        borderColor: 'white',
-                        transform: [{ rotate: '-45deg' }],
-                      }}
-                    />
-                  )}
-                </View>
-              </TouchableOpacity>
-
-              <Text style={{ color: colors.secondaryText, fontSize: 14 }}>
-                I accept the{' '}
-                <Text
-                  style={{
-                    color: colors.accent,
-                    textDecorationLine: 'underline',
-                  }}
-                  onPress={() => routePrivacy.navigate('privacy')}
-                >
-                  Terms and Conditions
-                </Text>
-              </Text>
-            </View>
-
-            {/* Sign In Button */}
-            <TouchableOpacity
-              onPress={signin}
-              disabled={!accepted}
-              style={{
-                backgroundColor: accepted ? colors.primary : colors.border,
-                paddingVertical: 12,
-                borderRadius: 16,
-                marginBottom: 12,
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: colors.icon,
-                  fontSize: 16,
-                  fontWeight: '600',
-                }}
-              >
-                Sign In
-              </Text>
-            </TouchableOpacity>
-
-            {/* Register Button */}
-            <TouchableOpacity
-              onPress={() => routeRegister.navigate('register')}
-              style={{
-                borderWidth: 1,
-                borderColor: colors.border,
-                paddingVertical: 12,
-                borderRadius: 16,
-                width: '100%',
-              }}
-            >
-              <Text
-                style={{
-                  textAlign: 'center',
-                  color: colors.text,
-                  fontSize: 16,
-                  fontWeight: '600',
-                }}
-              >
-                Register
-              </Text>
-            </TouchableOpacity>
 
             <View
               style={{
@@ -359,7 +201,6 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
             {/* Google Sign In */}
             <TouchableOpacity
               onPress={signin}
-              disabled={!accepted}
               style={{
                 flexDirection: 'row',
                 alignItems: 'center',
@@ -385,18 +226,6 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
               </Text>
             </TouchableOpacity>
 
-            {/* {!accepted && (
-          <Text
-            style={{
-              textAlign: "center",
-              fontSize: 13,
-              color: colors.negative,
-              marginTop: 8,
-            }}
-          >
-            Please accept the Terms and Conditions to continue.
-          </Text>
-        )} */}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
