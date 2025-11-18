@@ -85,9 +85,11 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
 
   const signin = async () => {
     try {
-      await GoogleSignin.hasPlayServices();
-      await GoogleSignin.revokeAccess();
-      await GoogleSignin.signOut();
+    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+
+    // Ensure clean session
+    await GoogleSignin.revokeAccess().catch(() => {});
+    await GoogleSignin.signOut().catch(() => {});
       const user = await GoogleSignin.signIn();
 
       const name = user?.data?.user?.name;
