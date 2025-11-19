@@ -18,22 +18,20 @@ function AppInitializer() {
   }, []);
 
   if (status === 'loading') {
-    return null; // splash screen
+    return null; // splash or blank until auth loads
   }
 
-  return (
-    <ThemeProvider>
-      <AppNavigator />
-    </ThemeProvider>
-  );
+  return <AppNavigator />;
 }
 
 export default function App() {
   return (
-    <Provider store={store}>
-      <QueryClientProvider client={queryClient}>
-        <AppInitializer />
-      </QueryClientProvider>
-    </Provider>
+    <ThemeProvider>       
+      <Provider store={store}>
+        <QueryClientProvider client={queryClient}>
+          <AppInitializer />
+        </QueryClientProvider>
+      </Provider>
+    </ThemeProvider>
   );
 }
