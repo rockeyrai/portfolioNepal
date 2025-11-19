@@ -1,29 +1,39 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
-
-// On device: Portfolio Nepal
-// Internal App Registry name: PortfolioNepal
-// Bundle/package name: com.portfolionepal.app
-
 // src/App.tsx
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppNavigator from './navigation';
 import { ThemeProvider } from './utils/ColorTheme';
-import { Provider } from 'react-redux';
-import { store } from './redux/store';
+import { Provider, useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState, store } from './redux/store';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { hydrateAuthAction } from './redux/slices/authSlice';
 
-const App = () => {
+const queryClient = new QueryClient();
+
+function AppInitializer() {
+  const dispatch = useDispatch<AppDispatch>();
+  const { status } = useSelector((state: RootState) => state.auth);
+
+  useEffect(() => {
+    dispatch(hydrateAuthAction());
+  }, []);
+
+  if (status === 'loading') {
+    return null; // splash screen
+  }
+
+  return (
+    <ThemeProvider>
+      <AppNavigator />
+    </ThemeProvider>
+  );
+}
+
+export default function App() {
   return (
     <Provider store={store}>
-      <ThemeProvider>
-        <AppNavigator />
-      </ThemeProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppInitializer />
+      </QueryClientProvider>
     </Provider>
   );
-};
-
-export default App;
+}

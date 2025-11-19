@@ -22,20 +22,12 @@ import GoogleLogo from '../../assets/logo/google_logo.svg';
 import { useThemeColors } from '../../utils/ColorTheme';
 import { useNavigation } from '@react-navigation/native';
 import api from '../../services';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppStackParamList, AuthStackParamList } from '../../navigation/types';
 
 
-type RegisterRoute = NativeStackNavigationProp<AuthStackParamList, 'register'>;
-// type HomeRoute = NativeStackNavigationProp<AppStackParamList, "Home">;
-type PrivacyRoute = NativeStackNavigationProp<AuthStackParamList, 'privacy'>;
 
 export const LoginForm = ({ onSubmit = () => {} }: any) => {
 
   const { colors } = useThemeColors();
-  const routeRegister = useNavigation<RegisterRoute>();
-  // const routeHome = useNavigation<HomeRoute>();
-  const routePrivacy = useNavigation<PrivacyRoute>();
 
   useEffect(() => {
     GoogleSignin.configure({
@@ -76,7 +68,6 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
       if (!email) throw new Error('No email returned from Google Sign-In');
 
       const response: any = await continueWithGoogle({ name, email });
-      console.log(user)
 
       if (
         !response?.data?.data?.accessToken ||

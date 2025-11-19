@@ -11,10 +11,12 @@ export type SubscriptionStackParamList = {
 
 export type AppStackParamList = {
   Home: undefined;
-  Profile: { userId: string };
+  Profile: undefined;
   Analysis:undefined;
   Copilot:undefined;
   Service:undefined
+  Notification:undefined
+  Search:undefined
 };
 
 export type RootStackParamList = {
