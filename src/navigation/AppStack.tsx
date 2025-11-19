@@ -8,6 +8,7 @@ import ServiceScreen from '../screens/Service';
 import CopilotScreen from '../screens/Copilot';
 import { useThemeColors } from '../utils/ColorTheme';
 import SearchScreen from '../screens/Search';
+import CompanyScreen from '../screens/Company/[symbol]';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -25,6 +26,7 @@ const AppStack = () => {
       <Stack.Screen name="Service" component={ServiceScreen} />
       <Stack.Screen name="Copilot" component={CopilotScreen} />
       <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="Company" component={CompanyScreen} />
     </Stack.Navigator>
   );
 };

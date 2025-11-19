@@ -17,6 +17,7 @@ export type AppStackParamList = {
   Service:undefined
   Notification:undefined
   Search:undefined
+  Company:{symbol:string}
 };
 
 export type RootStackParamList = {
