@@ -12,7 +12,7 @@ import { FlashList } from '@shopify/flash-list';
 import { ArrowLeft } from 'lucide-react-native';
 import Config from 'react-native-config';
 import { useThemeColors } from '../../utils/ColorTheme';
-import { getActiveCompanyNames } from '../Service/company';
+import { getActiveCompanyNames } from '../../services/company';
 import { getSearchHistory } from '../../utils/searchHistory';
 import BottomNavLayout from '../../layouts/BottomNav';
 import CompanyRow from './components/CompanyList';

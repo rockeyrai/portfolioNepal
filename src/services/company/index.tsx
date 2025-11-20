@@ -1,4 +1,4 @@
-import api from "../../../services";
+import api from "..";
 import { useQuery } from "@tanstack/react-query";
 export function getActiveCompanyNames() {
   return useQuery({
