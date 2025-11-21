@@ -1,8 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../index';
 
-/sector/_____aaaaacddeeehikmmnnorrttttuy / 1;
-
 const getNepseDayGraph = () => {
   return useQuery({
     queryKey: ['nepse_oneday_graph'],

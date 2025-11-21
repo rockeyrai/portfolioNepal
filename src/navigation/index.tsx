@@ -12,7 +12,6 @@ const RootStack = createNativeStackNavigator();
 
 const AppNavigator = () => {
   const { token, user } = useSelector((state: RootState) => state.auth);
-console.log(user)
   const isLoggedIn = !!token;
   const isSubscribed = user?.is_portfolio_subscribed === 1;
 
