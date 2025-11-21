@@ -9,6 +9,7 @@ import { hydrateAuthAction } from './redux/slices/authSlice';
 import userQuerry from './services/user/index';
 import { selectPortfolio, setPortfolios } from './redux/slices/portfolio';
 import { getSelectedPortfolio } from './core/portfolio/portfolioStorage';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const queryClient = new QueryClient();
 
@@ -70,7 +71,10 @@ export default function App() {
     <ThemeProvider>
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
+              <GestureHandlerRootView style={{ flex: 1 }}>
+          
           <AppInitializer />
+          </GestureHandlerRootView>
         </QueryClientProvider>
       </Provider>
     </ThemeProvider>

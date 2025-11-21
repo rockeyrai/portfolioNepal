@@ -14,7 +14,6 @@ const MainNepseGraph = () => {
 
   console.log('nepse data', NepseSummaryData);
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
       <View style={{padding:10,borderColor:"black",borderRadius:10,elevation:2,margin:10}}>
         <View>
           <View
@@ -45,7 +44,6 @@ const MainNepseGraph = () => {
         <GraphPage points={fakeGraphData} />
 
       </View>
-    </GestureHandlerRootView>
   );
 };
 

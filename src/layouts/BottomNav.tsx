@@ -1,6 +1,5 @@
-// src/layouts/BottomNav.tsx
 import React from "react";
-import { View, StyleSheet } from "react-native";
+import { View, StyleSheet, ScrollView } from "react-native";
 import BottomNav from "../components/BottomNav";
 
 type BottomNavLayoutProps = {
@@ -10,7 +9,13 @@ type BottomNavLayoutProps = {
 const BottomNavLayout = ({ children }: BottomNavLayoutProps) => {
   return (
     <View style={styles.container}>
-      <View style={styles.content}>{children}</View>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 70 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {children}
+      </ScrollView>
+
       <BottomNav />
     </View>
   );
@@ -18,9 +23,6 @@ const BottomNavLayout = ({ children }: BottomNavLayoutProps) => {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-  },
-  content: {
     flex: 1,
   },
 });
