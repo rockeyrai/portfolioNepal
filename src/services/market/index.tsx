@@ -32,10 +32,9 @@ const getNepseSummary = () => {
     queryKey: ['nepse'],
     queryFn: async () => {
       const { data } = await api.get('/mobile/market/nepse_summary');
-      if (Array.isArray(data)) return data;
-      if (Array.isArray(data?.data)) return data.data;
+      if (data?.data) return data.data;
 
-      return [];
+      return data; // fallback
     },
   });
 };
