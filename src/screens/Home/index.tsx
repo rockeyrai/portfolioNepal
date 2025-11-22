@@ -5,17 +5,17 @@ import SummaryDisplay from './components/SummaryDisplay';
 import MainNepseGraph from './components/MainNepseGraph';
 import SubIndices from './components/SubIndices';
 import MarketTab from './components/MarketTab';
-
+import HomeNews from './components/HomeNews';
 
 const HomeScreen = () => {
-
   return (
     <BottomNavLayout>
-        <SubIndices/>
-<MarketTab/>
-        <ProfileHeader />
-        <SummaryDisplay />
-        <MainNepseGraph/>
+      <SubIndices />
+      <MarketTab />
+      <ProfileHeader />
+      <SummaryDisplay />
+      <HomeNews/>
+      <MainNepseGraph />
     </BottomNavLayout>
   );
 };
