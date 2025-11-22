@@ -12,13 +12,13 @@ const BottomNavLayout = ({ children }: BottomNavLayoutProps) => {
 
   return (
     <View style={styles.container}>
-      <ScrollView
+      {/* <ScrollView
         contentContainerStyle={{ paddingBottom: 70 }}
         showsVerticalScrollIndicator={false}
         style={{ backgroundColor: colors.background }}
-      >
+      > */}
         {children}
-      </ScrollView>
+      {/* </ScrollView> */}
 
       <BottomNav />
     </View>

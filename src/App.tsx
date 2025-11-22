@@ -71,9 +71,8 @@ export default function App() {
     <ThemeProvider>
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
-              <GestureHandlerRootView style={{ flex: 1 }}>
-          
-          <AppInitializer />
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <AppInitializer />
           </GestureHandlerRootView>
         </QueryClientProvider>
       </Provider>

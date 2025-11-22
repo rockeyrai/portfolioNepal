@@ -59,7 +59,6 @@ export const getFilterLiveData = ({
       );
 
       const list = data?.data?.dataList;
-      console.log("list",data)
       if (Array.isArray(list)) return list;
 
       return [];

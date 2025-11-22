@@ -192,7 +192,7 @@ const MarketTab = () => {
   const { colors } = useThemeColors();
 
   return (
-    <View style={{ flex: 1, height: 350, backgroundColor: colors.background }}>
+    <View style={{ flex: 1, height: 350,marginTop:20, backgroundColor: colors.background }}>
       <TabView
         navigationState={{ index, routes }}
         renderScene={renderScene}

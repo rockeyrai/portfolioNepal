@@ -67,14 +67,7 @@ const CompanySkeletonRow = () => {
           alignItems: 'center',
         }}
       >
-        {/* <View
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: colors.text + '20',
-          }}
-        /> */}
+
         <Plus size={20} strokeWidth={2} color={colors.text + '70'} />
       </View>
     </View>

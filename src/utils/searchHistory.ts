@@ -24,3 +24,22 @@ export const getSearchHistory = async () => {
   const data = await AsyncStorage.getItem(KEY);
   return data ? JSON.parse(data) : {};
 };
+
+export const clearSearchHistory = async () => {
+  try {
+    await AsyncStorage.removeItem(KEY);
+    console.log("SEARCH_HISTORY cleared successfully.");
+  } catch (error) {
+    console.error("Failed to clear SEARCH_HISTORY:", error);
+  }
+};
+
+ export const logAllStorage = async () => {
+  const keys = await AsyncStorage.getAllKeys();
+  console.log("All keys:", keys);
+
+  const stores = await AsyncStorage.multiGet(keys);
+  stores.forEach(([key, value]) => {
+    console.log(key, JSON.parse(value || "{}"));
+  });
+};

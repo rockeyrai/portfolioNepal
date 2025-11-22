@@ -92,7 +92,10 @@ export default function BottomNav() {
 
       <TouchableOpacity
         style={[styles.navButton, styles.centerButton]}
-        onPress={() => navigation.navigate('Home')}
+        onPress={() => {
+          console.log('wokring');
+          navigation.navigate('Home');
+        }}
       >
         <Image
           source={require('../assets/logo/portfolio.png')}

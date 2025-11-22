@@ -18,12 +18,13 @@ import {
   EditIcon,
   Trash2,
 } from 'lucide-react-native';
-import { useSelector } from 'react-redux';
-import { RootState } from '../../../redux/store'; // Adjust path if needed
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../../../redux/store'; // Adjust path if needed
 import userQuerry from '../../../services/user'; // Adjust path if needed
 import { useThemeColors } from '../../../utils/ColorTheme';
 import SortUpSvg from '../../../assets/svg/sortup';
 import SortDownSvg from '../../../assets/svg/sortdown';
+import { selectPortfolio } from '../../../redux/slices/portfolio';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_PANEL_HEIGHT = SCREEN_HEIGHT * 0.5; // Max height = 50% of screen
@@ -40,7 +41,9 @@ const SummaryDisplay = () => {
   const { data: userPortfoliosResponse = [] } =
     userQuerry.getUserLinkPortfolio();
   const { colors } = useThemeColors();
+  const dispatch = useDispatch<AppDispatch>();
 
+  console.log('user total portoflio:', totalPortfolio);
   // --- State & Animation Refs ---
   const [modalVisible, setModalVisible] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);
@@ -50,7 +53,10 @@ const SummaryDisplay = () => {
   // Extra value for dragging logic
   const panY = useRef(new Animated.Value(0)).current;
 
-  // --- Actions ---
+  const handleSelectPortfolio = (portfolio: { id: number; name: string }) => {
+    console.log('selected portofli:', portfolio);
+    dispatch(selectPortfolio(portfolio));
+  };
 
   const openModal = () => {
     // We only set visible here. The animation starts in useEffect
@@ -150,25 +156,27 @@ const SummaryDisplay = () => {
       {/* --- Header Content --- */}
       <View>
         <Text style={[styles.totalValue, { color: colors.text }]}>
-          Rs. {totalPortfolio?.totalportfoliovalue?.toFixed(2) ?? '--'}
+          Rs. {totalPortfolio?.totalPortfolioValue?.toFixed(2) ?? '--'}
         </Text>
 
         <View style={styles.detailsContainer}>
           <View style={styles.percentageContainer}>
-            {totalPortfolio?.percentage !== undefined &&
+            {/* {totalPortfolio?.percentage !== undefined &&
               totalPortfolio.percentage !== 0 &&
               (totalPortfolio.percentage < 0 ? (
                 <SortDownSvg height={15} width={15} color={colors.negative} />
               ) : (
                 <SortUpSvg height={15} width={15} color={colors.positive} />
-              ))}
+              ))} */}
 
             <Text
               style={[
                 styles.percentageText,
                 {
                   color:
-                    totalPortfolio?.percentage === 0 && totalPortfolio?.percentage === null && totalPortfolio?.percentage === undefined
+                    totalPortfolio?.percentage === 0 &&
+                    totalPortfolio?.percentage === null &&
+                    totalPortfolio?.percentage === undefined
                       ? colors.secondaryText
                       : totalPortfolio?.percentage < 0
                       ? colors.negative
@@ -180,14 +188,14 @@ const SummaryDisplay = () => {
             </Text>
           </View>
           <Text style={styles.totalText}>
-            {totalPortfolio?.total?.toFixed(2) ?? '--'}
+            Rs.{totalPortfolio?.total?.toFixed(2) ?? '--'}
           </Text>
         </View>
       </View>
 
       {/* --- Trigger Button --- */}
       <TouchableOpacity
-        style={[styles.dropdown,{backgroundColor:colors.secondBackground}]}
+        style={[styles.dropdown, { backgroundColor: colors.secondBackground }]}
         activeOpacity={0.8}
         onPress={handleToggle}
       >
@@ -249,12 +257,15 @@ const SummaryDisplay = () => {
               >
                 {userPortfoliosResponse.map(item => (
                   <TouchableOpacity
+                    onPress={() => handleSelectPortfolio(item)}
                     key={item.id}
                     style={[
                       styles.portfolioItem,
                       {
-                        backgroundColor:
-                          item.id === selectedPortfolio.id && colors.tabActive,
+                   backgroundColor:
+          selectedPortfolio?.id === item.id
+            ? colors.tabActive
+            : colors.secondBackground,
                       },
                     ]}
                   >
@@ -272,6 +283,9 @@ const SummaryDisplay = () => {
                         alignItems: 'center',
                         gap: 6,
                       }}
+                      onPress={() => {
+                        console.log('edint');
+                      }}
                     >
                       <View
                         style={{
@@ -288,6 +302,9 @@ const SummaryDisplay = () => {
                           borderRadius: 5,
                           padding: 1,
                         }}
+                        onPress={() => {
+                          console.log('delteing');
+                        }}
                       >
                         <Trash2 color={colors.negative} size={20} />
                       </View>
@@ -298,9 +315,13 @@ const SummaryDisplay = () => {
 
               {/* Sticky Footer */}
               <View style={styles.stickyFooter}>
-                <TouchableOpacity style={[styles.addNew,{backgroundColor:colors.button}]}>
+                <TouchableOpacity
+                  style={[styles.addNew, { backgroundColor: colors.button }]}
+                >
                   <PlusCircle size={18} color={colors.text} />
-                  <Text style={[styles.addNewText,{color:colors.text}]}>Add New Portfolio</Text>
+                  <Text style={[styles.addNewText, { color: colors.text }]}>
+                    Add New Portfolio
+                  </Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -324,7 +345,7 @@ const styles = StyleSheet.create({
   totalValue: {
     fontSize: 24,
     fontWeight: '700',
-    marginBottom: 4,
+    marginBottom: 1,
     textAlign: 'center',
   },
   detailsContainer: {
@@ -429,8 +450,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     justifyContent: 'center',
-    margin:"auto",
-    borderRadius:25
+    margin: 'auto',
+    borderRadius: 25,
   },
   addNewText: {
     marginLeft: 8,

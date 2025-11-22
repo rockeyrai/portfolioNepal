@@ -76,7 +76,6 @@ export function GraphPage({
     };
   }, [enableRange, normalizedPoints]);
 
-  console.log("graph log",normalizedPoints)
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       <LineGraph
