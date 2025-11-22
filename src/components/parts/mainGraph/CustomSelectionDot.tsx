@@ -10,6 +10,7 @@ import {
 } from "react-native-reanimated";
 import { Circle, Group, Text, useFont } from "@shopify/react-native-skia";
 import type { SelectionDotProps } from "react-native-graph";
+import { useThemeColors } from "../../../utils/ColorTheme";
 
 // ✅ Global shared value (for graph point value)
 export const selectedPointValue = makeMutable(0);
@@ -28,6 +29,7 @@ export function SelectionDot({
     require("../../../assets/font/IBMPlexSans-VariableFont_wdth,wght.ttf"),
     12
   );
+  const { colors } = useThemeColors();
 
   const animateDot = useCallback(
     (active: boolean) => {
@@ -72,7 +74,7 @@ export function SelectionDot({
           y={textY}
           font={font}
           text={label}
-          color="white"
+          color={colors.text}
           opacity={labelOpacity}
         />
       )}

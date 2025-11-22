@@ -13,8 +13,6 @@ import {
   LayoutChangeEvent,
 } from 'react-native';
 import {
-  ArrowUpIcon,
-  ArrowDownIcon,
   ChevronDownIcon,
   PlusCircle,
   EditIcon,
@@ -23,6 +21,9 @@ import {
 import { useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store'; // Adjust path if needed
 import userQuerry from '../../../services/user'; // Adjust path if needed
+import { useThemeColors } from '../../../utils/ColorTheme';
+import SortUpSvg from '../../../assets/svg/sortup';
+import SortDownSvg from '../../../assets/svg/sortdown';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_PANEL_HEIGHT = SCREEN_HEIGHT * 0.5; // Max height = 50% of screen
@@ -38,6 +39,7 @@ const SummaryDisplay = () => {
     userQuerry.getUserTotalPortfolio(portfolioId);
   const { data: userPortfoliosResponse = [] } =
     userQuerry.getUserLinkPortfolio();
+  const { colors } = useThemeColors();
 
   // --- State & Animation Refs ---
   const [modalVisible, setModalVisible] = useState(false);
@@ -129,7 +131,7 @@ const SummaryDisplay = () => {
 
   const rotateChevron = animController.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
+    outputRange: ['0deg', '-180deg'],
   });
 
   // --- Layout Handler ---
@@ -144,26 +146,33 @@ const SummaryDisplay = () => {
   if (!selectedPortfolio) return <Text>No Portfolio to Show</Text>;
 
   return (
-    <View style={styles.card}>
+    <View style={[styles.card, { backgroundColor: colors.background }]}>
       {/* --- Header Content --- */}
       <View>
-        <Text style={styles.totalValue}>
+        <Text style={[styles.totalValue, { color: colors.text }]}>
           Rs. {totalPortfolio?.totalportfoliovalue?.toFixed(2) ?? '--'}
         </Text>
 
         <View style={styles.detailsContainer}>
           <View style={styles.percentageContainer}>
             {totalPortfolio?.percentage !== undefined &&
-            totalPortfolio.percentage < 0 ? (
-              <ArrowDownIcon size={15} color="#ef4444" />
-            ) : (
-              <ArrowUpIcon size={15} color="#22c55e" />
-            )}
+              totalPortfolio.percentage !== 0 &&
+              (totalPortfolio.percentage < 0 ? (
+                <SortDownSvg height={15} width={15} color={colors.negative} />
+              ) : (
+                <SortUpSvg height={15} width={15} color={colors.positive} />
+              ))}
+
             <Text
               style={[
                 styles.percentageText,
                 {
-                  color: totalPortfolio?.percentage < 0 ? '#ef4444' : '#22c55e',
+                  color:
+                    totalPortfolio?.percentage === 0 && totalPortfolio?.percentage === null && totalPortfolio?.percentage === undefined
+                      ? colors.secondaryText
+                      : totalPortfolio?.percentage < 0
+                      ? colors.negative
+                      : colors.positive,
                 },
               ]}
             >
@@ -178,13 +187,15 @@ const SummaryDisplay = () => {
 
       {/* --- Trigger Button --- */}
       <TouchableOpacity
-        style={styles.dropdown}
+        style={[styles.dropdown,{backgroundColor:colors.secondBackground}]}
         activeOpacity={0.8}
         onPress={handleToggle}
       >
-        <Text style={styles.dropdownText}>{selectedPortfolio?.name}</Text>
+        <Text style={[styles.dropdownText, { color: colors.text }]}>
+          {selectedPortfolio?.name}
+        </Text>
         <Animated.View style={{ transform: [{ rotate: rotateChevron }] }}>
-          <ChevronDownIcon size={16} color="white" />
+          <ChevronDownIcon size={16} color={colors.text} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -198,7 +209,13 @@ const SummaryDisplay = () => {
         <View style={styles.modalOverlay}>
           <TouchableWithoutFeedback onPress={closeModal}>
             <Animated.View
-              style={[styles.backdrop, { opacity: backdropOpacity }]}
+              style={[
+                styles.backdrop,
+                {
+                  backgroundColor: colors.secondBackground,
+                  opacity: backdropOpacity,
+                },
+              ]}
             />
           </TouchableWithoutFeedback>
 
@@ -209,13 +226,19 @@ const SummaryDisplay = () => {
                 // Hides component until height is calculated to prevent "flash"
                 opacity: contentHeight > 0 ? 1 : 0,
                 transform: [{ translateY }],
+                backgroundColor: colors.background,
               },
             ]}
             onLayout={onLayoutContent}
           >
             {/* Drag Handle */}
             <View {...panResponder.panHandlers} style={styles.dragHandleArea}>
-              <View style={styles.panelHandle} />
+              <View
+                style={[
+                  styles.panelHandle,
+                  { backgroundColor: colors.tabActive },
+                ]}
+              />
             </View>
 
             {/* Content Container: List + Sticky Footer */}
@@ -225,11 +248,22 @@ const SummaryDisplay = () => {
                 style={styles.scrollList}
               >
                 {userPortfoliosResponse.map(item => (
-                  <TouchableOpacity key={item.id} style={styles.portfolioItem}>
-                    <Text style={styles.portfolioItemText}>{item.name}</Text>
-                    {item.id === selectedPortfolio.id && (
-                      <View style={styles.activeDot} />
-                    )}
+                  <TouchableOpacity
+                    key={item.id}
+                    style={[
+                      styles.portfolioItem,
+                      {
+                        backgroundColor:
+                          item.id === selectedPortfolio.id && colors.tabActive,
+                      },
+                    ]}
+                  >
+                    <Text
+                      style={[styles.portfolioItemText, { color: colors.text }]}
+                    >
+                      {item.name}
+                    </Text>
+
                     <View
                       style={{
                         display: 'flex',
@@ -239,8 +273,24 @@ const SummaryDisplay = () => {
                         gap: 6,
                       }}
                     >
-                      <EditIcon size={20} />
-                      <Trash2 size={20} />
+                      <View
+                        style={{
+                          backgroundColor: colors.card,
+                          borderRadius: 5,
+                          padding: 1,
+                        }}
+                      >
+                        <EditIcon color={colors.edit} size={20} />
+                      </View>
+                      <View
+                        style={{
+                          backgroundColor: colors.card,
+                          borderRadius: 5,
+                          padding: 1,
+                        }}
+                      >
+                        <Trash2 color={colors.negative} size={20} />
+                      </View>
                     </View>
                   </TouchableOpacity>
                 ))}
@@ -248,9 +298,9 @@ const SummaryDisplay = () => {
 
               {/* Sticky Footer */}
               <View style={styles.stickyFooter}>
-                <TouchableOpacity style={styles.addNew}>
-                  <PlusCircle size={18} color="#666" />
-                  <Text style={styles.addNewText}>Add New Portfolio</Text>
+                <TouchableOpacity style={[styles.addNew,{backgroundColor:colors.button}]}>
+                  <PlusCircle size={18} color={colors.text} />
+                  <Text style={[styles.addNewText,{color:colors.text}]}>Add New Portfolio</Text>
                 </TouchableOpacity>
               </View>
             </View>
@@ -266,21 +316,15 @@ export default SummaryDisplay;
 const styles = StyleSheet.create({
   // ... existing styles ...
   card: {
-    backgroundColor: '#fff',
     padding: 16,
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.05,
-    shadowRadius: 8,
-    elevation: 2,
   },
   totalValue: {
     fontSize: 24,
     fontWeight: '700',
     marginBottom: 4,
-    color: '#1f2937',
     textAlign: 'center',
   },
   detailsContainer: {
@@ -292,7 +336,6 @@ const styles = StyleSheet.create({
   percentageContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3f4f6',
     paddingHorizontal: 6,
     paddingVertical: 2,
     borderRadius: 4,
@@ -305,21 +348,19 @@ const styles = StyleSheet.create({
   totalText: {
     fontSize: 14,
     fontWeight: '500',
-    color: '#6b7280',
   },
   dropdown: {
-    marginTop: 16,
-    backgroundColor: '#dc2626',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    marginTop: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 4,
     borderRadius: 20,
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
-    elevation: 2,
+
+    // elevation: 2,
   },
   dropdownText: {
-    color: 'white',
     fontWeight: '600',
     fontSize: 14,
   },
@@ -329,15 +370,13 @@ const styles = StyleSheet.create({
   },
   backdrop: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#000',
   },
   bottomPanel: {
-    backgroundColor: '#fff',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingTop: 8,
     paddingBottom: 30, // Safe area padding
-    paddingHorizontal: 20,
+    // paddingHorizontal: 20,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: -4 },
     shadowOpacity: 0.1,
@@ -355,8 +394,7 @@ const styles = StyleSheet.create({
   panelHandle: {
     width: 40,
     height: 5,
-    backgroundColor: '#e5e7eb',
-    borderRadius: 10,
+    borderRadius: 25,
   },
 
   // New Layout for Sticky Footer
@@ -372,38 +410,31 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingVertical: 14,
-    borderBottomWidth: 1,
-    borderBottomColor: '#f3f4f6',
+    paddingVertical: 10,
+    // borderBottomWidth: 1,
+    paddingHorizontal: 20,
   },
   portfolioItemText: {
     fontSize: 16,
-    color: '#374151',
     fontWeight: '500',
-  },
-  activeDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#dc2626',
   },
 
   // Sticky Footer
   stickyFooter: {
-    borderTopWidth: 1,
-    borderTopColor: '#f3f4f6',
-    backgroundColor: '#fff',
+    // borderTopWidth: 1,
   },
   addNew: {
+    width: '90%',
     flexDirection: 'row',
     alignItems: 'center',
-    paddingTop: 16,
-    paddingBottom: 4,
+    padding: 10,
+    justifyContent: 'center',
+    margin:"auto",
+    borderRadius:25
   },
   addNewText: {
     marginLeft: 8,
-    color: '#666',
-    fontSize: 15,
-    fontWeight: '500',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });

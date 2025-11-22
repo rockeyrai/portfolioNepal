@@ -8,14 +8,15 @@ import MarketTab from './components/MarketTab';
 import HomeNews from './components/HomeNews';
 
 const HomeScreen = () => {
+  
   return (
     <BottomNavLayout>
-      <SubIndices />
-      <MarketTab />
       <ProfileHeader />
       <SummaryDisplay />
-      <HomeNews/>
       <MainNepseGraph />
+      <SubIndices />
+      <MarketTab />
+      <HomeNews />
     </BottomNavLayout>
   );
 };

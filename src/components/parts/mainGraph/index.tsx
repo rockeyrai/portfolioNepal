@@ -9,22 +9,22 @@ import { useThemeColors } from '../../../utils/ColorTheme';
 const COLOR = '#6a7ee7';
 const GRADIENT_FILL_COLORS = ['#7476df5D', '#7476df4D', '#7476df00'];
 
-const getMinMax = (points: { date: Date; value: number }[]) => {
-  if (!points || points.length === 0) return { min: null, max: null };
 
-  let min = points[0];
-  let max = points[0];
+// ---------------------------
+// Normalize API response
+// ---------------------------
+const normalizeApiPoints = (raw: any[]) => {
+  if (!raw || raw.length === 0) return [];
 
-  for (const p of points) {
-    if (p.value < min.value) min = p;
-    if (p.value > max.value) max = p;
-  }
-
-  return { min, max };
+  return raw.map(item => ({
+    date: new Date(Number(item.t) * 1000),   // must be Date object
+    value: Number(item.l),         // price
+  }));
 };
 
+
 export type GraphPageProps = {
-  points: { date: Date; value: number }[];
+  points: any[]; // Raw API points
   isAnimated?: boolean;
   enablePanGesture?: boolean;
   enableFadeInEffect?: boolean;
@@ -48,112 +48,74 @@ export function GraphPage({
 }: GraphPageProps) {
   const insets = useSafeAreaInsets();
   const { colors } = useThemeColors();
-  const { min, max } = useMemo(() => getMinMax(points), [points]);
 
-  const highestDate = useMemo(
-    () =>
-      points.length !== 0 && points[points.length - 1] != null
-        ? points[points.length - 1]!.date
-        : undefined,
-    [points],
-  );
+  // ---------------------------
+  // Memoize normalized points
+  // ---------------------------
+  const normalizedPoints = useMemo(() => normalizeApiPoints(points), [points]);
+
+
+
+  // ---------------------------
+  // Calculate graph range
+  // ---------------------------
+
   const range: GraphRange | undefined = useMemo(() => {
-    if (!enableRange || points.length === 0 || !highestDate) return undefined;
+    if (!enableRange || normalizedPoints.length === 0) return undefined;
 
-    const values = points.map(p => p.value);
+    const values = normalizedPoints.map(p => p.value);
     const minY = Math.min(...values);
     const maxY = Math.max(...values);
-
-    // Add small padding so line isn’t on the border
-    const padding = (maxY - minY) * 0.05;
+    const padding = (maxY - minY) * 0.0;
 
     return {
-      x: {
-        min: points[0].date,
-        max: new Date(highestDate.getTime()),
-      },
       y: {
         min: minY - padding,
         max: maxY + padding,
       },
     };
-  }, [enableRange, highestDate, points]);
+  }, [enableRange, normalizedPoints]);
 
+  console.log("graph log",normalizedPoints)
   return (
-      <View
-        style={[
-          styles.container,
-          {
-            backgroundColor: colors.background,
-            // paddingTop: insets.top + 0,
-            // paddingBottom: insets.bottom + 0,
-          },
-        ]}
-      >
-        <LineGraph
-          style={styles.graph}
-          animated={isAnimated}
-          color={COLOR}
-          points={points}
-          gradientFillColors={enableGradient ? GRADIENT_FILL_COLORS : undefined}
-          enablePanGesture={enablePanGesture}
-          panGestureDelay={0}
-          onPointSelected={point => {
-            'worklet';
-            selectedPointValue.value = point.value;
-          }}
-          onGestureEnd={() => {}}
-          SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
-          range={range}
-          horizontalPadding={enableIndicator ? 5 : 0}
-          indicatorPulsating={indicatorPulsating}
-          TopAxisLabel={() =>
-            max ? (
-              <Text style={{ fontSize: 12, color: 'green' }}>
-                {max.value.toFixed(2)}
-              </Text>
-            ) : null
-          }
-          BottomAxisLabel={() =>
-            min ? (
-              <Text style={{ fontSize: 12, color: 'red' }}>
-                {min.value.toFixed(2)}
-              </Text>
-            ) : null
-          }
-        />
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <LineGraph
+        style={styles.graph}
+        points={normalizedPoints}
+        animated={isAnimated}
+        color={COLOR}
+        // gradientFillColors={enableGradient ? GRADIENT_FILL_COLORS : undefined}
+        enablePanGesture={enablePanGesture}
+        panGestureDelay={0}
+        onPointSelected={point => {
+          'worklet';
+          selectedPointValue.value = point.value;
+        }}
+        onGestureEnd={() => {}}
+        SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
+        range={range}
+        horizontalPadding={enableIndicator ? 25 : 0}
+        indicatorPulsating={indicatorPulsating}
 
-        <View style={styles.spacer} />
-      </View>
+
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {},
-  spacer: {
-    flexGrow: 1,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 30,
-    fontWeight: '700',
-    paddingHorizontal: 0,
+  container: {
+    width: '100%',
+    height: 150,
+    marginBottom:5,
+    borderBottomLeftRadius:10,
+    borderBottomRightRadius:10,
   },
   graph: {
     alignSelf: 'center',
     width: '100%',
-    aspectRatio: 1.4,
+    height: '100%',
     marginVertical: 0,
-    // paddingHorizontal: 5,
-  },
-  controlsScrollView: {
-    flexGrow: 1,
-    paddingHorizontal: 5,
-  },
-  controlsScrollViewContent: {
-    justifyContent: 'center',
+    paddingVertical:0
   },
 });

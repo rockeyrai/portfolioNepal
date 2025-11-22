@@ -16,3 +16,5 @@ const getNepseDayGraph = () => {
     },
   });
 };
+
+export default {getNepseDayGraph}
