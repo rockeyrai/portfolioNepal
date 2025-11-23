@@ -16,13 +16,23 @@ import { useRoute } from '@react-navigation/native';
 
 const queryClient = new QueryClient();
 
+const AppCover = () => {
+  const dispatch = useDispatch<AppDispatch>();
+
+  // Hydrate auth
+  useEffect(() => {
+    dispatch(hydrateAuthAction());
+  }, [dispatch]);
+  return <AppNavigator />;
+};
+
 export default function App() {
   return (
     <ThemeProvider>
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <AppNavigator />{' '}
+            <AppCover />
           </GestureHandlerRootView>
         </QueryClientProvider>
       </Provider>

@@ -15,7 +15,6 @@ import { useAuth } from '../core/auth';
 import userQuerry from "../services/user"
 import { selectPortfolio, setPortfolios } from '../redux/slices/portfolio';
 import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
-import { hydrateAuthAction } from '../redux/slices/authSlice';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -62,10 +61,7 @@ const AppStack = () => {
     initPortfolios();
   }, [isPortfolioLoading, userPortfoliosResponse]);
 
-  // Hydrate auth
-  useEffect(() => {
-    dispatch(hydrateAuthAction());
-  }, [dispatch]);
+
 
   // Show splash until auth & portfolios are ready
   if (status === 'loading' || isPortfolioLoading || !hydrated) {
