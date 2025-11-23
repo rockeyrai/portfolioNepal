@@ -15,6 +15,8 @@ const AppNavigator = () => {
   const isLoggedIn = !!token;
   const isSubscribed = user?.is_portfolio_subscribed === 1;
 
+  console.log("islogind ?",isLoggedIn)
+console.log("wokriing")
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>

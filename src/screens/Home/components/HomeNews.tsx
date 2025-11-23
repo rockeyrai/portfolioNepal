@@ -55,7 +55,7 @@ const HomeNews = () => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Top News</Text>
+      <Text style={[styles.header,{color:colors.text}]}>Top News</Text>
 
       <FlashList
         data={DATA}
@@ -96,7 +96,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     lineHeight: 18,
-    color: '#222',
   },
   metaRow: {
     flexDirection: 'row',

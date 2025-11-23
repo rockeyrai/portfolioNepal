@@ -10,61 +10,11 @@ import userQuerry from './services/user/index';
 import { selectPortfolio, setPortfolios } from './redux/slices/portfolio';
 import { getSelectedPortfolio } from './core/portfolio/portfolioStorage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { useAuth } from './core/auth';
+import { ContinousBaseGesture } from 'react-native-gesture-handler/lib/typescript/handlers/gestures/gesture';
+import { useRoute } from '@react-navigation/native';
 
 const queryClient = new QueryClient();
-
-function AppInitializer() {
-  const dispatch = useDispatch<AppDispatch>();
-  const { status } = useSelector((state: RootState) => state.auth);
-  const [hydrated, setHydrated] = useState(false);
-
-  const { data: userPortfoliosResponse, isLoading: isPortfolioLoading } =
-    userQuerry.getUserLinkPortfolio();
-
-  const portfolios = Array.isArray(userPortfoliosResponse)
-    ? userPortfoliosResponse
-    : userPortfoliosResponse?.data ?? [];
-
-  useEffect(() => {
-    const initPortfolios = async () => {
-      if (isPortfolioLoading || !userPortfoliosResponse) {
-        return;
-      }
-
-      const list = portfolios.map(p => ({ id: p.id, name: p.name }));
-
-      // 1. Update Redux
-      dispatch(setPortfolios(list));
-
-      // 2. Hydrate storage
-      const stored = await getSelectedPortfolio();
-
-      if (stored && list.find(p => p.id === stored.id)) {
-        dispatch(selectPortfolio(stored));
-      } else if (list.length > 0) {
-        dispatch(selectPortfolio(list[0]));
-      } else {
-        dispatch(selectPortfolio(null));
-      }
-
-      setHydrated(true);
-    };
-
-    initPortfolios();
-  }, [isPortfolioLoading, userPortfoliosResponse]);
-
-  // Hydrate auth
-  useEffect(() => {
-    dispatch(hydrateAuthAction());
-  }, [dispatch]);
-
-  // Show splash until auth & portfolios are ready
-  if (status === 'loading' || isPortfolioLoading || !hydrated) {
-    return null;
-  }
-
-  return <AppNavigator />;
-}
 
 export default function App() {
   return (
@@ -72,7 +22,7 @@ export default function App() {
       <Provider store={store}>
         <QueryClientProvider client={queryClient}>
           <GestureHandlerRootView style={{ flex: 1 }}>
-            <AppInitializer />
+            <AppNavigator />{' '}
           </GestureHandlerRootView>
         </QueryClientProvider>
       </Provider>

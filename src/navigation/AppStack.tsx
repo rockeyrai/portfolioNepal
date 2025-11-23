@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/Home';
 import ProfileScreen from '../screens/Profile';
@@ -9,11 +9,68 @@ import CopilotScreen from '../screens/Copilot';
 import { useThemeColors } from '../utils/ColorTheme';
 import SearchScreen from '../screens/Search';
 import CompanyScreen from '../screens/Company/[symbol]';
+import { useDispatch, useSelector } from 'react-redux';
+import { AppDispatch, RootState } from '../redux/store';
+import { useAuth } from '../core/auth';
+import userQuerry from "../services/user"
+import { selectPortfolio, setPortfolios } from '../redux/slices/portfolio';
+import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
+import { hydrateAuthAction } from '../redux/slices/authSlice';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppStack = () => {
   const { colors } = useThemeColors();
+  const dispatch = useDispatch<AppDispatch>();
+  const { status } = useSelector((state: RootState) => state.auth);
+  const [hydrated, setHydrated] = useState(false);
+  const { user } = useAuth();
+
+  console.log("current user:",user)
+  const { data: userPortfoliosResponse, isLoading: isPortfolioLoading } =
+    userQuerry.getUserLinkPortfolio();
+
+  const portfolios = Array.isArray(userPortfoliosResponse)
+    ? userPortfoliosResponse
+    : userPortfoliosResponse?.data ?? [];
+
+  useEffect(() => {
+    const initPortfolios = async () => {
+      if (isPortfolioLoading || !userPortfoliosResponse) {
+        return;
+      }
+
+      const list = portfolios.map(p => ({ id: p.id, name: p.name }));
+
+      // 1. Update Redux
+      dispatch(setPortfolios(list));
+
+      // 2. Hydrate storage
+      const stored = await getSelectedPortfolio();
+
+      if (stored && list.find(p => p.id === stored.id)) {
+        dispatch(selectPortfolio(stored));
+      } else if (list.length > 0) {
+        dispatch(selectPortfolio(list[0]));
+      } else {
+        dispatch(selectPortfolio(null));
+      }
+
+      setHydrated(true);
+    };
+
+    initPortfolios();
+  }, [isPortfolioLoading, userPortfoliosResponse]);
+
+  // Hydrate auth
+  useEffect(() => {
+    dispatch(hydrateAuthAction());
+  }, [dispatch]);
+
+  // Show splash until auth & portfolios are ready
+  if (status === 'loading' || isPortfolioLoading || !hydrated) {
+    return null;
+  }
 
   return (
     <Stack.Navigator

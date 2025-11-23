@@ -10,5 +10,6 @@ export function getActiveCompanyNames() {
 
       return []; // fallback
     },
+      // enabled: true, 
   });
 }

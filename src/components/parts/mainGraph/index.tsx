@@ -77,7 +77,7 @@ export function GraphPage({
   }, [enableRange, normalizedPoints]);
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]}>
+    <View style={[styles.container, { backgroundColor: colors.secondBackground }]}>
       <LineGraph
         style={styles.graph}
         points={normalizedPoints}

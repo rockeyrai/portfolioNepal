@@ -187,7 +187,7 @@ const SummaryDisplay = () => {
               {totalPortfolio?.percentage?.toFixed(2) ?? '--'}%
             </Text>
           </View>
-          <Text style={styles.totalText}>
+          <Text style={[styles.totalText,{color:colors.text}]}>
             Rs.{totalPortfolio?.total?.toFixed(2) ?? '--'}
           </Text>
         </View>

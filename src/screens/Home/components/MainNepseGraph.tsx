@@ -6,6 +6,7 @@ import graphQuerry from '../../../services/graph';
 import SortUpSvg from '../../../assets/svg/sortup';
 import SortDownSvg from '../../../assets/svg/sortdown';
 import { useThemeColors } from '../../../utils/ColorTheme';
+import { Cookie } from 'lucide-react-native';
 
 const MainNepseGraph = () => {
   const { data: NepseSummaryData = [] } = marketQuerry.getNepseSummary();
@@ -20,7 +21,7 @@ const MainNepseGraph = () => {
         borderRadius: 10,
         elevation: 2,
         marginHorizontal: 20,
-        backgroundColor: colors.background,
+        backgroundColor: colors.secondBackground,
       }}
     >
       <View
@@ -42,9 +43,9 @@ const MainNepseGraph = () => {
               gap: 6,
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: 700 }}> NEPSE</Text>
+            <Text style={{ fontSize: 18, fontWeight: 700 ,color:colors.text}}> NEPSE</Text>
             <Text
-              style={{ fontSize: 12, fontWeight: 400 }}
+              style={{ fontSize: 12, fontWeight: 400 ,color:colors.secondaryText }}
             >{`(${NepseSummaryData?.schange})`}</Text>
           </View>
           <View
@@ -64,7 +65,7 @@ const MainNepseGraph = () => {
                 gap: 12,
               }}
             >
-              <Text style={{ fontSize: 14, fontWeight: 700 }}>
+              <Text style={{ fontSize: 14, fontWeight: 700, color:colors.text }}>
                 {NepseSummaryData?.currentValue}
               </Text>
               <View
@@ -119,8 +120,8 @@ const MainNepseGraph = () => {
               alignItems: 'center',
             }}
           >
-            <Text style={styles.rangeTitle}>Hig: </Text>
-            <Text style={styles.rangeValue}>5434</Text>
+            <Text style={[styles.rangeTitle,{color:colors.text}]}>Hig: </Text>
+            <Text style={[styles.rangeValue,{color:colors.text}]}>5434</Text>
           </View>
           <View
             style={{
@@ -130,8 +131,8 @@ const MainNepseGraph = () => {
               alignItems: 'center',
             }}
           >
-            <Text style={styles.rangeTitle}>Low: </Text>
-            <Text style={styles.rangeValue}>4234</Text>
+            <Text style={[styles.rangeTitle,{color:colors.text}]}>Low: </Text>
+            <Text style={[styles.rangeValue,{color:colors.text}]}>4321</Text>
           </View>
         </View>
       </View>

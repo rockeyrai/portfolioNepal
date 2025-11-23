@@ -6,18 +6,26 @@ import {
   Platform,
   KeyboardAvoidingView,
   StyleSheet,
+  InteractionManager,
+  Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
 import { ArrowLeft } from 'lucide-react-native';
+import { useNavigation } from '@react-navigation/native';
 import Config from 'react-native-config';
+
 import { useThemeColors } from '../../utils/ColorTheme';
 import { getActiveCompanyNames } from '../../services/company';
-import { getSearchHistory } from '../../utils/searchHistory';
+import {
+  getSearchHistory,
+  incrementSearchCount,
+} from '../../utils/searchHistory';
 import BottomNavLayout from '../../layouts/BottomNav';
 import CompanyRow from './components/CompanyList';
 import CompanySkeletonRow from './components/CompanySkeleton';
 
+// Type definitions
 type Company = {
   symbol: string;
   companyName?: string;
@@ -26,130 +34,157 @@ type Company = {
 
 const SearchScreen = () => {
   const { colors } = useThemeColors();
-  const { data: companies = [], isLoading } = getActiveCompanyNames();
+  const navigation = useNavigation<any>();
+  const { data: companies = [], isLoading: isDataLoading } =
+    getActiveCompanyNames();
 
+    console.log(companies)
   const [search, setSearch] = useState('');
-  const [searchHistory, setSearchHistory] = useState<Record<string, number>>({});
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [searchHistory, setSearchHistory] = useState<Record<string, number>>(
+    {},
+  );
+  const [isTransitionFinished, setIsTransitionFinished] = useState(false);
 
   const logoBaseURL = Config.COMPANY_LOGO_URL;
 
-  // Load search history once on mount
   useEffect(() => {
-    const loadHistory = async () => {
-      const history = await getSearchHistory();
-      setSearchHistory(history);
-    };
-    loadHistory();
+    const task = InteractionManager.runAfterInteractions(() => {
+      setIsTransitionFinished(true);
+      getSearchHistory().then(setSearchHistory);
+    });
+    return () => task.cancel();
   }, []);
 
-  // Memoized filtering and sorting logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [search]);
+
+  const handleCompanyPress = useCallback(
+    async (symbol: string) => {
+      console.log('working');
+      navigation.navigate('Company', { symbol });
+      await incrementSearchCount(symbol);
+    },
+    [navigation],
+  );
+
+  const handleBookmark = useCallback((symbol: string) => {
+    console.log(`Added to bookmark: ${symbol}`);
+  }, []);
+
   const finalList = useMemo(() => {
     if (!companies.length) return [];
 
-    const query = search.trim().toLowerCase();
+    const query = debouncedSearch.trim().toLowerCase();
+    let results = companies;
 
-    // 1️⃣ FILTER
-    const filteredList = !query
-      ? companies
-      : companies.filter(item => {
-          const name = item.companyName?.toLowerCase() ?? '';
-          const symbol = item.symbol?.toLowerCase() ?? '';
-          const sector = item.sectorName?.toLowerCase() ?? '';
-          return (
-            name.includes(query) ||
-            symbol.includes(query) ||
-            sector.includes(query)
-          );
-        });
+    if (query) {
+      results = companies.filter(item => {
+        return (
+          (item.symbol && item.symbol.toLowerCase().includes(query)) ||
+          (item.companyName && item.companyName.toLowerCase().includes(query))
+        );
+      });
+    }
 
-    // 2️⃣ SORT BY SEARCH COUNTS
-    const sorted = [...filteredList].sort((a, b) => {
-      const aCount = searchHistory[a.symbol] || 0;
-      const bCount = searchHistory[b.symbol] || 0;
-      return bCount - aCount;
-    });
+    if (Object.keys(searchHistory).length > 0) {
+      results = [...results].sort((a, b) => {
+        const countA = searchHistory[a.symbol] || 0;
+        const countB = searchHistory[b.symbol] || 0;
+        return countB - countA;
+      });
+    }
 
-    // 3️⃣ TOP 3 PRIORITIZATION ONLY WHEN SEARCH IS EMPTY
     if (!query) {
-      const top = sorted.slice(0, 3);
-      const rest = sorted.slice(3);
+      const top = results.slice(0, 3);
+      const rest = results.slice(3);
       return [...top, ...rest];
     }
 
-    return sorted;
-  }, [search, companies, searchHistory]);
+    return results;
+  }, [debouncedSearch, companies, searchHistory]);
 
-  // Memoized renderItem
   const renderItem = useCallback(
     ({ item }: { item: Company }) => (
-      <CompanyRow item={item} logoBaseURL={logoBaseURL} />
+      <CompanyRow
+        item={item}
+        logoBaseURL={logoBaseURL}
+        onPress={handleCompanyPress}
+        onBookmark={handleBookmark}
+      />
     ),
-    [logoBaseURL]
+    [logoBaseURL, handleCompanyPress, handleBookmark],
   );
 
-  // Memoized keyExtractor
+  const showSkeleton = !isTransitionFinished || isDataLoading;
   const keyExtractor = useCallback((item: Company) => item.symbol, []);
-
-  // Memoized ListEmptyComponent
-  const listEmptyComponent = useMemo(() => {
-    if (search.length > 0) {
-      return (
-        <Text style={[styles.emptyText, { color: colors.text }]}>
-          No companies found
-        </Text>
-      );
-    }
-    return null;
-  }, [search.length, colors.text]);
-
   return (
     <BottomNavLayout>
       <SafeAreaView
         style={[styles.safeArea, { backgroundColor: colors.background }]}
       >
         <KeyboardAvoidingView
-          style={styles.keyboardView}
+          style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          {/* Search Input */}
-          <View style={styles.searchContainer}>
-            <View style={styles.iconContainer}>
+          {/* FIXED HEADER - Outside of scrollable area */}
+          <View style={styles.headerContainer}>
+            <Pressable
+              onPress={() => navigation.goBack()}
+              style={styles.iconContainer}
+              hitSlop={10}
+            >
               <ArrowLeft color={colors.text} />
-            </View>
+            </Pressable>
 
             <TextInput
               placeholder="Search company"
               placeholderTextColor={colors.text + '80'}
               style={[
                 styles.searchInput,
-                { color: colors.text }
+                {
+                  color: colors.text,
+                  backgroundColor: colors.secondBackground,
+                },
               ]}
               value={search}
               onChangeText={setSearch}
+              autoCapitalize="none"
+              returnKeyType="search"
+              autoCorrect={false}
             />
           </View>
 
-          {/* Company List */}
-          {isLoading ? (
-            <FlashList
-              data={Array.from({ length: 12 })}
-              keyExtractor={(_, index) => index.toString()}
-              renderItem={() => <CompanySkeletonRow />}
-              estimatedItemSize={60}
-            />
-          ) : companies.length === 0 ? (
-            <Text style={[styles.loadingText, { color: colors.text }]}>
-              Loading companies...
-            </Text>
-          ) : (
-            <FlashList<Company>
-              data={finalList}
-              estimatedItemSize={60}
-              keyExtractor={keyExtractor}
-              renderItem={renderItem}
-              ListEmptyComponent={listEmptyComponent}
-            />
-          )}
+          {/* SCROLLABLE CONTENT AREA - Separate from header */}
+          <View style={styles.listContainer}>
+            {showSkeleton ? (
+              // ... skeleton code
+              <FlashList
+                data={Array.from({ length: 12 })}
+                estimatedItemSize={60}
+                renderItem={() => <CompanySkeletonRow />}
+                scrollEnabled={false}
+              />
+            ) : (
+              <FlashList<Company>
+                data={finalList}
+                renderItem={renderItem}
+                keyExtractor={keyExtractor}
+                estimatedItemSize={60} // Must match the exact height of CompanyRow styles
+                // OPTIMIZATION SETTINGS
+                drawDistance={500} // Lowering this slightly can sometimes help blanking if images are heavy
+                overrideItemLayout={(layout, item) => {
+                  // Explicitly telling FlashList the size prevents measurement errors
+                  layout.size = 60;
+                }}
+                keyboardShouldPersistTaps="handled"
+              />
+            )}
+          </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
     </BottomNavLayout>
@@ -162,32 +197,38 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 10,
   },
-  keyboardView: {
-    flex: 1,
-  },
-  searchContainer: {
+  headerContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
+    height: 50,
     marginBottom: 10,
+    // These properties ensure the header stays fixed
+    position: 'relative',
+    zIndex: 10,
   },
   iconContainer: {
-    width: '10%',
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   searchInput: {
+    flex: 1,
     borderRadius: 12,
-    paddingVertical: 10,
-    paddingHorizontal: 6,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
     fontSize: 16,
-    width: '85%',
+    height: '100%',
+  },
+  listContainer: {
+    flex: 1,
+    // This ensures the list takes remaining space below the header
   },
   emptyText: {
     textAlign: 'center',
     marginTop: 20,
-  },
-  loadingText: {
-    textAlign: 'center',
-    marginTop: 20,
+    fontSize: 16,
   },
 });
 

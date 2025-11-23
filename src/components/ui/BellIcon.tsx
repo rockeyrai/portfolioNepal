@@ -47,7 +47,7 @@ const BellButton: React.FC<BellButtonProps> = ({ count }) => {
 
   return (
     <TouchableOpacity
-      style={[styles.button, { backgroundColor: colors.card }]}
+      style={[styles.button, { backgroundColor: colors.secondBackground }]}
       onPress={handlePress}
       activeOpacity={0.8}
     >
