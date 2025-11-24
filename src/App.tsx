@@ -7,7 +7,7 @@ import { AppDispatch, RootState, store } from './redux/store';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { hydrateAuthAction } from './redux/slices/authSlice';
 import userQuerry from './services/user/index';
-import { selectPortfolio, setPortfolios } from './redux/slices/portfolio';
+import { selectPortfolio, setPortfolios } from './redux/slices/selecetedportfolio';
 import { getSelectedPortfolio } from './core/portfolio/portfolioStorage';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useAuth } from './core/auth';

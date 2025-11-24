@@ -12,9 +12,15 @@ import CompanyScreen from '../screens/Company/[symbol]';
 import { useDispatch, useSelector } from 'react-redux';
 import { AppDispatch, RootState } from '../redux/store';
 import { useAuth } from '../core/auth';
-import userQuerry from "../services/user"
-import { selectPortfolio, setPortfolios } from '../redux/slices/portfolio';
+import userQuerry from '../services/user';
+import {
+  selectPortfolio,
+  setPortfolios,
+} from '../redux/slices/selecetedportfolio';
 import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
+import { setPortfolioDetails } from '../redux/slices/userPortfolios';
+import BottomNavLayout from '../layouts/BottomNav';
+import BottomNav from '../components/BottomNav';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -25,7 +31,7 @@ const AppStack = () => {
   const [hydrated, setHydrated] = useState(false);
   const { user } = useAuth();
 
-  console.log("current user:",user)
+  console.log('current user:', user);
   const { data: userPortfoliosResponse, isLoading: isPortfolioLoading } =
     userQuerry.getUserLinkPortfolio();
 
@@ -61,27 +67,90 @@ const AppStack = () => {
     initPortfolios();
   }, [isPortfolioLoading, userPortfoliosResponse]);
 
+  const selectedPortfolio = useSelector(
+    (state: RootState) => state.portfolio.selectedPortfolio,
+  );
+  console.log('selsected portfolio:', selectPortfolio);
+  const portfolioId = selectedPortfolio?.id ?? 0;
 
+  const { data: userPortfoliodetails, isLoading } =
+    userQuerry.getPortfolioDetails(portfolioId);
+
+  console.log('portfolio details', userPortfoliodetails);
+  useEffect(() => {
+    if (userPortfoliodetails && userPortfoliodetails?.dataList?.length > 0) {
+      dispatch(setPortfolioDetails(userPortfoliodetails?.dataList));
+    }
+  }, [userPortfoliodetails, dispatch]);
 
   // Show splash until auth & portfolios are ready
   if (status === 'loading' || isPortfolioLoading || !hydrated) {
     return null;
   }
 
+  function ScreenLayout({ children }) {
   return (
-    <Stack.Navigator
-      initialRouteName="Home"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Profile" component={ProfileScreen} />
-      <Stack.Screen name="Analysis" component={AnalysisScreen} />
-      <Stack.Screen name="Service" component={ServiceScreen} />
-      <Stack.Screen name="Copilot" component={CopilotScreen} />
-      <Stack.Screen name="Search" component={SearchScreen} />
-      <Stack.Screen name="Company" component={CompanyScreen} />
-    </Stack.Navigator>
+    <>
+      {children}
+      <BottomNav />
+    </>
   );
+}
+
+
+return (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen
+      name="Home"
+      component={() => (
+        <ScreenLayout>
+          <HomeScreen />
+        </ScreenLayout>
+      )}
+    />
+
+    <Stack.Screen
+      name="Profile"
+      component={() => (
+        <ScreenLayout>
+          <ProfileScreen />
+        </ScreenLayout>
+      )}
+    />
+
+    <Stack.Screen
+      name="Analysis"
+      component={() => (
+        <ScreenLayout>
+          <AnalysisScreen />
+        </ScreenLayout>
+      )}
+    />
+
+    <Stack.Screen
+      name="Service"
+      component={() => (
+        <ScreenLayout>
+          <ServiceScreen />
+        </ScreenLayout>
+      )}
+    />
+
+    <Stack.Screen
+      name="Copilot"
+      component={() => (
+        <ScreenLayout>
+          <CopilotScreen />
+        </ScreenLayout>
+      )}
+    />
+
+    <Stack.Screen name="Search" component={SearchScreen} />
+    <Stack.Screen name="Company" component={CompanyScreen} />
+  </Stack.Navigator>
+);
+
+
 };
 
 export default AppStack;

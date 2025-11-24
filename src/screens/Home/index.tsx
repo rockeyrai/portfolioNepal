@@ -12,12 +12,12 @@ import { ScrollView } from 'react-native';
 import { useThemeColors } from '../../utils/ColorTheme';
 
 const HomeScreen = () => {
-  //  logAllStorage();
+  //  logAllStorage();j
   // clearSearchHistory()
   const { colors } = useThemeColors();
 
   return (
-    <BottomNavLayout>
+    <>
       <ProfileHeader />
       <ScrollView
         contentContainerStyle={{ paddingBottom: 70 }}
@@ -30,7 +30,7 @@ const HomeScreen = () => {
         <SubIndices />
         <HomeNews />
       </ScrollView>
-    </BottomNavLayout>
+    </>
   );
 };
 

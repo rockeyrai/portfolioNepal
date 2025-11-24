@@ -24,7 +24,7 @@ import userQuerry from '../../../services/user'; // Adjust path if needed
 import { useThemeColors } from '../../../utils/ColorTheme';
 import SortUpSvg from '../../../assets/svg/sortup';
 import SortDownSvg from '../../../assets/svg/sortdown';
-import { selectPortfolio } from '../../../redux/slices/portfolio';
+import { selectPortfolio } from '../../../redux/slices/selecetedportfolio';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_PANEL_HEIGHT = SCREEN_HEIGHT * 0.5; // Max height = 50% of screen
@@ -42,8 +42,6 @@ const SummaryDisplay = () => {
     userQuerry.getUserLinkPortfolio();
   const { colors } = useThemeColors();
   const dispatch = useDispatch<AppDispatch>();
-
-  console.log('user total portoflio:', totalPortfolio);
   // --- State & Animation Refs ---
   const [modalVisible, setModalVisible] = useState(false);
   const [contentHeight, setContentHeight] = useState(0);

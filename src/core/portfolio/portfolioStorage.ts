@@ -1,5 +1,5 @@
 import * as Keychain from 'react-native-keychain';
-import { SelectedPortfolio } from '../../redux/slices/portfolio';
+import { SelectedPortfolio } from '../../redux/slices/selecetedportfolio';
 
 const SELECTED_PORTFOLIO_KEY = 'selectedPortfolio';
 

@@ -30,4 +30,19 @@ const getUserLinkPortfolio = () => {
   });
 };
 
-export default { getUserLinkPortfolio, getUserTotalPortfolio };
+const getPortfolioDetails = (portfolioId: string | number) => {
+  return useQuery({
+    queryKey: ['user_stock_details'],
+    queryFn: async () => {
+      const { data } =
+        await api.get(`/adv-portfolio/portfolio/stocks/${portfolioId}?performanceType=&timePeriod=
+`);
+console.log("portfoli id:",portfolioId)
+console.log("main api portoflio list",data)
+      if (data?.data) return data.data;
+
+      return data;
+    },
+  });
+};
+export default { getUserLinkPortfolio, getUserTotalPortfolio ,getPortfolioDetails};

@@ -1,6 +1,6 @@
 import { useSelector, useDispatch } from "react-redux";
 import { AppDispatch, RootState, store } from "../../redux/store";
-import { Portfolio, selectPortfolio, setPortfolios } from "../../redux/slices/portfolio";
+import { Portfolio, selectPortfolio, setPortfolios } from "../../redux/slices/selecetedportfolio";
 import { setSelectedPortfolio as storeSelectedPortfolio, getSelectedPortfolio } from "./portfolioStorage";
 
 interface UsePortfolioReturn {
