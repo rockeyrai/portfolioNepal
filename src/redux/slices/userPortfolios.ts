@@ -30,7 +30,7 @@ export const portfolioSlice = createSlice({
       state.byId = {};
       state.allIds = [];
 
-      action.payload.forEach((stock) => {
+      action?.payload?.forEach((stock) => {
         state.byId[stock.transactionId] = stock;
         state.allIds.push(stock.transactionId);
       });

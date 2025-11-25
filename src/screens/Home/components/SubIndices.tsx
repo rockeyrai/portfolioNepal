@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
-import { Text, View, TouchableOpacity, Animated } from 'react-native';
+import { Text, View, TouchableOpacity,  } from 'react-native';
 import { ChevronDownIcon, LineChart } from 'lucide-react-native';
 import marketQuery from '../../../services/market/index';
 import { useThemeColors } from '../../../utils/ColorTheme';
@@ -16,7 +16,12 @@ import {
   Waves,
   ShieldCheck,
 } from 'lucide-react-native';
-
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from "react-native-reanimated";
 // Move SubIndexItem outside as a separate component
 const SubIndexItem = React.memo(({ item, colors, subIcons }) => {
   const Icon = subIcons[item.sindex] || LineChart;
@@ -111,28 +116,34 @@ const SubIndexItem = React.memo(({ item, colors, subIcons }) => {
   );
 });
 
-const SubIndices = () => {
-    const renderCount = useRef(0);
-    useEffect(() => {
-      console.log('subindex component mounted');
-      return () => console.log('subindex component unmounted');
-    }, []);
-    renderCount.current += 1;
-  
-    console.log(`subindex component rendered ${renderCount.current} times`);
 
-
+const  SubIndices=()=> {
   const { data: subIndexList = [] } = marketQuery.getSubIndexSummary();
   const { colors } = useThemeColors();
 
-  const [open, setOpen] = useState(true);
   const [showAll, setShowAll] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
-  
-  const heightAnim = useRef(new Animated.Value(1)).current;
-  const rotateAnim = useRef(new Animated.Value(1)).current;
 
-  // Memoize subIcons object
+  const open = useSharedValue(1);
+  const rotate = useSharedValue(1);
+
+  const displayData = useMemo(() => {
+    if (open.value === 0) return [];
+    return showAll ? subIndexList : subIndexList.slice(0, 5);
+  }, [subIndexList, showAll, open.value]);
+
+  const animatedContentStyle = useAnimatedStyle(() => ({
+    maxHeight: interpolate(open.value, [0, 1], [0, 700]),
+    opacity: interpolate(open.value, [0, 1], [0, 1]),
+    overflow: "hidden",
+  }));
+
+  const rotateStyle = useAnimatedStyle(() => ({
+    transform: [
+      {
+        rotate: `${interpolate(rotate.value, [0, 1], [-90, 0])}deg`,
+      },
+    ],
+  }));
   const subIcons = useMemo(() => ({
     'Micro Finance': PiggyBank,
     'Life Insurance': ShieldCheck,
@@ -148,116 +159,38 @@ const SubIndices = () => {
     Finance: PiggyBank,
     Tradings: TrendingUp,
   }), []);
+  const toggleOpen = () => {
+    const toValue = open.value === 1 ? 0 : 1;
 
-  console.log("component re-render")
-  // Memoize display data to prevent unnecessary recalculations
-  const displayData = useMemo(() => {
-    // Only compute when component is open
-    if (!open) return [];
-    return showAll ? subIndexList : subIndexList.slice(0, 5);
-  }, [subIndexList, showAll, open]);
+    open.value = withTiming(toValue, { duration: 400 });
+    rotate.value = withTiming(toValue, { duration: 400 });
 
-  const hasMore = subIndexList.length > 5;
-
-  // Memoize animation interpolations
-  const rotation = useMemo(() => rotateAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: ['-90deg', '0deg'],
-  }), [rotateAnim]);
-
-  const maxHeight = useMemo(() => heightAnim.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, 700],
-  }), [heightAnim]);
-
-  const opacity = useMemo(() => heightAnim.interpolate({
-    inputRange: [0, 0.5, 1],
-    outputRange: [0, 0.5, 1],
-  }), [heightAnim]);
-
-  // Optimize toggle function with useCallback
-  const toggleOpen = useCallback(() => {
-    // Prevent toggling during animation
-    if (isAnimating) return;
-
-    const toValue = open ? 0 : 1;
-    setIsAnimating(true);
-    setOpen(!open);
-
-    Animated.parallel([
-      Animated.timing(rotateAnim, {
-        toValue,
-        duration: 300,
-        useNativeDriver: true,
-      }),
-      Animated.timing(heightAnim, {
-        toValue,
-        duration: 300,
-        useNativeDriver: false,
-      }),
-    ]).start(() => {
-      setIsAnimating(false);
-      // Reset showAll when closing
-      if (open) {
-        setShowAll(false);
-      }
-    });
-  }, [open, isAnimating, rotateAnim, heightAnim]);
-
-  // Memoize view more/less handlers
-  const handleViewMore = useCallback(() => {
-    setShowAll(true);
-  }, []);
-
-  const handleViewLess = useCallback(() => {
-    setShowAll(false);
-  }, []);
+    if (toValue === 0) setShowAll(false);
+  };
 
   return (
-    <View
-      style={{
-        margin: 12,
-        // paddingHorizontal: 6,
-        paddingVertical: 10,
-        backgroundColor: colors.background,
-        borderBottomWidth:1,
-        borderTopWidth:1,
-        borderColor:colors.secondBackground
-        // borderRadius: 12,
-        // elevation: 3,
-        // shadowColor: '#000',
-        // shadowOpacity: 0.1,
-        // shadowRadius: 6,
-      }}
-    >
+    <View style={{ margin: 12, paddingVertical: 10 , borderBottomWidth:1, borderTopWidth:1, borderColor:colors.secondBackground }}>
       {/* Header */}
       <TouchableOpacity
         onPress={toggleOpen}
         activeOpacity={0.7}
-        disabled={isAnimating}
         style={{
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
         }}
       >
-        <Text style={{ fontSize: 18, fontWeight: '700', color: colors.text }}>
+        <Text style={{ fontSize: 18, fontWeight: "700", color: colors.text }}>
           Subindex
         </Text>
 
-        <Animated.View style={{ transform: [{ rotate: rotation }] }}>
+        <Animated.View style={rotateStyle}>
           <ChevronDownIcon size={15} color={colors.text} />
         </Animated.View>
       </TouchableOpacity>
 
-      {/* Collapsible Content */}
-      <Animated.View
-        style={{
-          maxHeight,
-          opacity,
-          overflow: 'hidden',
-        }}
-      >
+      {/* Animated Body */}
+      <Animated.View style={animatedContentStyle}>
         <View style={{ marginTop: 8 }}>
           {displayData.map((item) => (
             <SubIndexItem
@@ -268,37 +201,25 @@ const SubIndices = () => {
             />
           ))}
 
-          {/* View More Button */}
-          {hasMore && !showAll && open && (
+          {/* View More */}
+          {subIndexList.length > 5 && !showAll && (
             <TouchableOpacity
-              onPress={handleViewMore}
-              activeOpacity={0.7}
-              style={{
-                paddingVertical: 12,
-                alignItems: 'center',
-              }}
+              onPress={() => setShowAll(true)}
+              style={{ paddingVertical: 12, alignItems: "center" }}
             >
-              <Text
-                style={{ fontSize: 14, fontWeight: '600', color: '#2563eb' }}
-              >
+              <Text style={{ color: "#2563eb", fontWeight: "600" }}>
                 View More ({subIndexList.length - 5} more)
               </Text>
             </TouchableOpacity>
           )}
 
-          {/* View Less Button */}
-          {showAll && open && (
+          {/* View Less */}
+          {showAll && (
             <TouchableOpacity
-              onPress={handleViewLess}
-              activeOpacity={0.7}
-              style={{
-                paddingVertical: 12,
-                alignItems: 'center',
-              }}
+              onPress={() => setShowAll(false)}
+              style={{ paddingVertical: 12, alignItems: "center" }}
             >
-              <Text
-                style={{ fontSize: 14, fontWeight: '600', color: '#2563eb' }}
-              >
+              <Text style={{ color: "#2563eb", fontWeight: "600" }}>
                 View Less
               </Text>
             </TouchableOpacity>
@@ -307,6 +228,7 @@ const SubIndices = () => {
       </Animated.View>
     </View>
   );
-};
+}
+
 
 export default SubIndices;

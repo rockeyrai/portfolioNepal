@@ -20,6 +20,7 @@ import {
 import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
 import { setPortfolioDetails } from '../redux/slices/userPortfolios';
 import BottomTabs from './appStack/BottomTabs';
+import api from '../services';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -55,10 +56,8 @@ const AppStack = () => {
 
       const list = portfolios.map(p => ({ id: p.id, name: p.name }));
 
-      // 1. Update Redux
       dispatch(setPortfolios(list));
 
-      // 2. Hydrate storage
       const stored = await getSelectedPortfolio();
 
       if (stored && list.find(p => p.id === stored.id)) {
@@ -81,15 +80,27 @@ const AppStack = () => {
   console.log('selsected portfolio:', selectPortfolio);
   const portfolioId = selectedPortfolio?.id ?? 0;
 
-  const { data: userPortfoliodetails, isLoading } =
-    userQuerry.getPortfolioDetails(portfolioId);
+  // const { data: userPortfoliodetails, isLoading } =
+  //   userQuerry.getPortfolioDetails(portfolioId);
 
-  console.log('portfolio details', userPortfoliodetails);
   useEffect(() => {
-    if (userPortfoliodetails && userPortfoliodetails?.dataList?.length > 0) {
-      dispatch(setPortfolioDetails(userPortfoliodetails?.dataList));
-    }
-  }, [userPortfoliodetails, dispatch]);
+    const fetchstockDAta = async () => {
+      const { data } =
+        await api.get(`/adv-portfolio/portfolio/stocks/${portfolioId}?performanceType=&timePeriod=
+`);
+      console.log('use effect data', data?.data?.dataList);
+      dispatch(setPortfolioDetails(data?.data?.dataList));
+    };
+
+    fetchstockDAta();
+  }, [portfolioId]);
+
+  // console.log('portfolio details', userPortfoliodetails);
+  // useEffect(() => {
+  //   if (userPortfoliodetails && userPortfoliodetails?.dataList?.length > 0) {
+  //     dispatch(setPortfolioDetails(userPortfoliodetails?.dataList));
+  //   }
+  // }, [userPortfoliodetails, dispatch]);
 
   // Show splash until auth & portfolios are ready
   if (status === 'loading' || isPortfolioLoading || !hydrated) {

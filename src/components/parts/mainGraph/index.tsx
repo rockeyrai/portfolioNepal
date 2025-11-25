@@ -10,7 +10,6 @@ import { LineGraph } from 'react-native-graph';
 const COLOR = '#6a7ee7';
 const GRADIENT_FILL_COLORS = ['#7476df5D', '#7476df4D', '#7476df00'];
 
-
 // ---------------------------
 // Normalize API response
 // ---------------------------
@@ -18,11 +17,10 @@ const normalizeApiPoints = (raw: any[]) => {
   if (!raw || raw.length === 0) return [];
 
   return raw.map(item => ({
-    date: new Date(Number(item.t) * 1000),   // must be Date object
-    value: Number(item.l),         // price
+    date: new Date(Number(item.t) * 1000), // must be Date object
+    value: Number(item.l), // price
   }));
 };
-
 
 export type GraphPageProps = {
   points: any[]; // Raw API points
@@ -50,23 +48,20 @@ export function GraphPage({
   const insets = useSafeAreaInsets();
   const { colors } = useThemeColors();
 
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('MainGRaph mounted');
+    return () => console.log('MainGRaph unmounted');
+  }, []);
+  renderCount.current += 1;
 
-
-    const renderCount = useRef(0);
-    useEffect(() => {
-      console.log('MainGRaph mounted');
-      return () => console.log('MainGRaph unmounted');
-    }, []);
-    renderCount.current += 1;
-  
-    console.log(`MainGRaph rendered ${renderCount.current} times`);
+  console.log(`MainGRaph rendered ${renderCount.current} times`);
   // ---------------------------
   // Memoize normalized points
   // ---------------------------
   const normalizedPoints = useMemo(() => normalizeApiPoints(points), [points]);
 
-
-
+  console.log(normalizedPoints);
   // ---------------------------
   // Calculate graph range
   // ---------------------------
@@ -87,12 +82,11 @@ export function GraphPage({
     };
   }, [enableRange, normalizedPoints]);
 
-  
   return (
-    <View style={[styles.container, { backgroundColor: colors.secondBackground }]}>
-      <LineGraph 
-  animated={true}
-        color={COLOR}
+    <View
+      style={[styles.container, { backgroundColor: colors.secondBackground }]}
+    >
+      <LineGraph
 
         style={styles.graph}
         points={normalizedPoints}
@@ -103,13 +97,13 @@ export function GraphPage({
           'worklet';
           selectedPointValue.value = point.value;
         }}
+                animated={true}
+        color={COLOR}
         onGestureEnd={() => {}}
         SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}
         range={range}
         horizontalPadding={enableIndicator ? 25 : 0}
         indicatorPulsating={indicatorPulsating}
-
-
       />
     </View>
   );
@@ -119,15 +113,15 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     height: 150,
-    marginBottom:5,
-    borderBottomLeftRadius:10,
-    borderBottomRightRadius:10,
+    marginBottom: 5,
+    borderBottomLeftRadius: 10,
+    borderBottomRightRadius: 10,
   },
   graph: {
     alignSelf: 'center',
     width: '100%',
     height: '100%',
     marginVertical: 0,
-    paddingVertical:0
+    paddingVertical: 0,
   },
 });

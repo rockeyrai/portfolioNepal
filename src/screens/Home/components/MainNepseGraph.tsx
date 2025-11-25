@@ -203,7 +203,7 @@ const MainNepseGraph = () => {
           </View>
         </View>
       </View>
-      <GraphPage points={generateFakeData(50)} />
+      <GraphPage points={nepseGraphData} />
       {/* <View>
         <LineChart
           animationDuration={5000}

@@ -29,6 +29,7 @@ const AnalysisScreen = () => {
   const allIds = useSelector((state: RootState) => state.userPortfolio.allIds);
   const { colors } = useThemeColors();
 
+  console.log("list data",list)
   const [selectedFilter, setSelectedFilter] = useState<
     'Unit' | 'Price' | 'Sector'
   >('Unit');
