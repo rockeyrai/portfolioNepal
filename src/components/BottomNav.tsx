@@ -1,111 +1,44 @@
-import React, { useEffect, useRef } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
-
-import {
-  RouteProp,
-  useNavigation,
-  useNavigationState,
-  useRoute,
-} from '@react-navigation/native';
-import {
-  MessagesSquare,
-  CircleUser,
-  SquareLibrary,
-  ChartPie,
-} from 'lucide-react-native';
-import { useThemeColors } from '../utils/ColorTheme';
-import { GradientIcon, GradientText } from './ui/GradientText';
-import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppStackParamList } from '../navigation/types';
+import React, { useEffect, useMemo, useRef } from 'react';
+import { View, TouchableOpacity, StyleSheet, Image, Text } from 'react-native';
+import Animated, {
+  withTiming,
+  useAnimatedStyle,
+  interpolate,
+} from 'react-native-reanimated';
+import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
+import { ChartPie, SquareLibrary, MessagesSquare, CircleUser } from 'lucide-react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import { GradientIcon, GradientText } from './ui/GradientText';
+import { useThemeColors } from '../utils/ColorTheme';
 
-type BottomNavProp = NativeStackNavigationProp<AppStackParamList>;
+const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
-type NavItem = {
-  name: string;
-  icon: any;
-  route: keyof AppStackParamList;
-  params?: object;
-};
+const navItems = [
+  { name: 'Analysis', icon: ChartPie, route: 'Analysis' },
+  { name: 'Service', icon: SquareLibrary, route: 'Service' },
+  { name: 'Home', icon: null, route: 'Home' },
+  { name: 'Copilot', icon: MessagesSquare, route: 'Copilot' },
+  { name: 'Profile', icon: CircleUser, route: 'Profile' },
+];
 
-export default function BottomNav() {
-  const renderCount = useRef(0);
-  useEffect(() => {
-    console.log('bottomnav mounted');
-    return () => console.log('bottomnav unmounted');
-  }, []);
-  renderCount.current += 1;
+function BottomNav({ state, navigation }: BottomTabBarProps) {
 
-  console.log(`bottomnav rendered ${renderCount.current} times`);
-  const navigation = useNavigation<BottomNavProp>();
-  // const route =
-  //   useRoute<RouteProp<AppStackParamList, keyof AppStackParamList>>();
-
+    const renderCount = useRef(0);
+    useEffect(() => {
+      console.log('AppStack mounted');
+      return () => console.log('AppStack unmounted');
+    }, []);
+    renderCount.current += 1;
+  
+    console.log(`AppStack rendered ${renderCount.current} times`);
   const { colors } = useThemeColors();
 
-const activeRoute = useNavigationState((state) => {
-  // Get the current route of MainTabs navigator
-  const mainTabs = state.routes.find(r => r.name === 'MainTabs');
-  if (!mainTabs || !mainTabs.state) return '';
-  const nestedIndex = mainTabs.state.index;
-  return mainTabs.state.routes[nestedIndex].name;
-}) as keyof AppStackParamList;
+  const activeRoute = state.routes[state.index].name; // <-- FIXED
 
-
-  const navItems1: NavItem[] = [
-    { name: 'Analysis', icon: ChartPie, route: 'Analysis' },
-    { name: 'Service', icon: SquareLibrary, route: 'Service' },
-  ];
-
-  const navItems2: NavItem[] = [
-    { name: 'Copilot', icon: MessagesSquare, route: 'Copilot' },
-    {
-      name: 'Profile',
-      icon: CircleUser,
-      route: 'Profile',
-      params: { userId: '123' },
-    },
-  ];
-
-  const renderNavItem = (item: NavItem) => {
-  const isActive = activeRoute === item.route;
-
-    return (
-      <TouchableOpacity
-        key={item.name}
-        style={styles.navButton}
-        onPress={() =>
-          item.params
-            ? navigation.navigate('MainTabs', {
-                screen: item.route,
-                params: item.params,
-              })
-            : navigation.navigate('MainTabs', {
-                screen: item.route,
-              })
-        }
-      >
-        {isActive ? (
-          <GradientIcon Icon={item.icon} />
-        ) : (
-          <item.icon size={24} color="#6b7280" />
-        )}
-        {isActive ? (
-          <GradientText style={styles.label}>{item.name}</GradientText>
-        ) : (
-          <Text style={styles.label}>{item.name}</Text>
-        )}
-      </TouchableOpacity>
-    );
-  };
+  const items = useMemo(() => navItems, []);
 
   return (
-    <View
-      style={[
-        styles.container,
-        { borderColor: colors.secondBackground, borderWidth: 0 },
-      ]}
-    >
+    <View style={[styles.container, { borderColor: colors.secondBackground }]}>
       <LinearGradient
         colors={['rgb(64,64,79)', 'rgb(28,28,33)']}
         start={{ x: 0.5, y: 0.2 }}
@@ -113,28 +46,62 @@ const activeRoute = useNavigationState((state) => {
         style={styles.gradient}
       />
 
-      {navItems1.map(renderNavItem)}
+      {items.map((item) => {
+        const isActive = activeRoute === item.route; // <-- FIXED
 
-      <TouchableOpacity
-        style={[styles.navButton, styles.centerButton]}
-        onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
-      >
-        <Image
-          source={require('../assets/logo/portfolio.png')}
-          style={styles.centerImage}
-          resizeMode="contain"
-        />
-        {activeRoute === 'Home' ? (
-          <GradientText style={styles.label}>Home</GradientText>
-        ) : (
-          <Text style={styles.label}>Home</Text>
-        )}
-      </TouchableOpacity>
+        const animStyle = useAnimatedStyle(() => ({
+          transform: [{ scale: withTiming(isActive ? 1.2 : 1, { duration: 250 }) }],
+        }));
 
-      {navItems2.map(renderNavItem)}
+        const labelStyle = useAnimatedStyle(() => ({
+          opacity: withTiming(isActive ? 1 : 0.4, { duration: 200 }),
+          transform: [{ translateY: withTiming(isActive ? -2 : 2, { duration: 200 }) }],
+        }));
+
+        return (
+          <AnimatedTouchable
+            key={item.route}
+            style={styles.navButton}
+            onPress={() => navigation.navigate(item.route)}
+          >
+            <Animated.View style={animStyle}>
+              {item.route === 'Home' ? (
+                <Image
+                  source={require('../assets/logo/portfolio.png')}
+                  style={styles.centerImage}
+                  resizeMode="contain"
+                />
+              ) : isActive ? (
+                <GradientIcon Icon={item.icon} />
+              ) : (
+                <item.icon size={24} color="#8a8a8a" />
+              )}
+            </Animated.View>
+
+            {item.route === 'Home' ? (
+              isActive ? (
+                <GradientText style={styles.label}>Home</GradientText>
+              ) : (
+                <Text style={[styles.label, { color: '#8a8a8a' }]}>Home</Text>
+              )
+            ) : (
+              <Animated.View style={labelStyle}>
+                {isActive ? (
+                  <GradientText style={styles.label}>{item.name}</GradientText>
+                ) : (
+                  <Text style={[styles.label, { color: '#8a8a8a' }]}>{item.name}</Text>
+                )}
+              </Animated.View>
+            )}
+          </AnimatedTouchable>
+        );
+      })}
     </View>
   );
 }
+
+
+export default React.memo(BottomNav);
 
 const styles = StyleSheet.create({
   container: {
@@ -146,36 +113,25 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     height: 45,
-    borderTopWidth: 0,
     borderRadius: 20,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 2,
-    // overflow:"hidden"
+    elevation: 4,
+    // overflow: 'hidden',
   },
   gradient: {
     ...StyleSheet.absoluteFillObject,
-    borderRadius: 20, // important to clip gradient within container
+    borderRadius: 20,
   },
   navButton: {
     flex: 1,
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 5,
-  },
-  centerButton: {
-    marginBottom: 5,
   },
   centerImage: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'transparent',
+    width: 35,
+    height: 35,
   },
   label: {
-    marginTop: 0,
-    fontSize: 8,
-    color: '#6b7280',
+    marginTop: 2,
+    fontSize: 10,
+    fontWeight: '600',
   },
 });

@@ -1,12 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import HomeScreen from '../screens/Home';
-import ProfileScreen from '../screens/Profile';
 import { AppStackParamList } from './types';
-import AnalysisScreen from '../screens/Analysis';
-import ServiceScreen from '../screens/Service';
-import CopilotScreen from '../screens/Copilot';
-import { useThemeColors } from '../utils/ColorTheme';
 import SearchScreen from '../screens/Search';
 import CompanyScreen from '../screens/Company/[symbol]';
 import { useDispatch, useSelector } from 'react-redux';
@@ -34,7 +28,6 @@ const AppStack = () => {
 
   console.log(`AppStack rendered ${renderCount.current} times`);
 
-  const { colors } = useThemeColors();
   const dispatch = useDispatch<AppDispatch>();
   const { status } = useSelector((state: RootState) => state.auth);
   const [hydrated, setHydrated] = useState(false);
@@ -80,9 +73,6 @@ const AppStack = () => {
   console.log('selsected portfolio:', selectPortfolio);
   const portfolioId = selectedPortfolio?.id ?? 0;
 
-  // const { data: userPortfoliodetails, isLoading } =
-  //   userQuerry.getPortfolioDetails(portfolioId);
-
   useEffect(() => {
     const fetchstockDAta = async () => {
       const { data } =
@@ -95,13 +85,6 @@ const AppStack = () => {
     fetchstockDAta();
   }, [portfolioId]);
 
-  // console.log('portfolio details', userPortfoliodetails);
-  // useEffect(() => {
-  //   if (userPortfoliodetails && userPortfoliodetails?.dataList?.length > 0) {
-  //     dispatch(setPortfolioDetails(userPortfoliodetails?.dataList));
-  //   }
-  // }, [userPortfoliodetails, dispatch]);
-
   // Show splash until auth & portfolios are ready
   if (status === 'loading' || isPortfolioLoading || !hydrated) {
     return null;
@@ -109,7 +92,11 @@ const AppStack = () => {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="MainTabs" component={BottomTabs} />
+      <Stack.Screen
+        name="MainTabs"
+        component={BottomTabs}
+        options={{ animation: 'slide_from_right' }}
+      />
 
       {/* screens WITHOUT bottom nav */}
       <Stack.Screen name="Search" component={SearchScreen} />
