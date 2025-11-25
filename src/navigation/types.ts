@@ -18,6 +18,7 @@ export type AppStackParamList = {
   Notification:undefined
   Search:undefined
   Company:{symbol:string}
+  MainTabs:undefined
 };
 
 export type RootStackParamList = {

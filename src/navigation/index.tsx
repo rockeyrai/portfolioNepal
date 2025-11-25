@@ -1,32 +1,37 @@
+// src/navigation/index.tsx
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 
+import { RootState } from '../redux/store';
 import AuthStack from './auth/AuthStack';
 import SubscriptionStack from './subscription/SubscriptionStack';
 import AppStack from './AppStack';
-import { RootState } from '../redux/store';
 
 const RootStack = createNativeStackNavigator();
 
 const AppNavigator = () => {
-  const { token, user } = useSelector((state: RootState) => state.auth);
+  const { token, user } = useSelector(
+    (state: RootState) => ({
+      token: state.auth.token,
+      user: state.auth.user,
+    }),
+    shallowEqual
+  );
+
   const isLoggedIn = !!token;
   const isSubscribed = user?.is_portfolio_subscribed === 1;
 
-  console.log("islogind ?",isLoggedIn)
-console.log("wokriing")
   return (
     <NavigationContainer>
       <RootStack.Navigator screenOptions={{ headerShown: false }}>
-        {!isLoggedIn ? (
-          <RootStack.Screen name="Auth" component={AuthStack} />
-        ) : !isSubscribed ? (
+        {/* Always call Screen components to preserve hook order */}
+        {!isLoggedIn && <RootStack.Screen name="Auth" component={AuthStack} />}
+        {isLoggedIn && !isSubscribed && (
           <RootStack.Screen name="Subscription" component={SubscriptionStack} />
-        ) : (
-          <RootStack.Screen name="App" component={AppStack} />
         )}
+        {isLoggedIn && isSubscribed && <RootStack.Screen name="App" component={AppStack} />}
       </RootStack.Navigator>
     </NavigationContainer>
   );

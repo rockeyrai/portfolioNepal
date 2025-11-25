@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { BackHandler } from "react-native";
 import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -10,6 +10,15 @@ type LoginScreenProp = NativeStackNavigationProp<AuthStackParamList, "Login">;
 
 const LoginScreen = () => {
   const navigation = useNavigation<LoginScreenProp>();
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('Loginpage mounted');
+    return () => console.log('Loginpage unmounted');
+  }, []);
+  renderCount.current += 1;
+
+  console.log(`Loginpage rendered ${renderCount.current} times`);
+
 
   useFocusEffect(
     React.useCallback(() => {

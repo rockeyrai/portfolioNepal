@@ -1,10 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { LineGraph } from 'react-native-graph';
+// import { LineGraph } from 'react-native-graph';
 import { selectedPointValue, SelectionDot } from './CustomSelectionDot';
 import { GraphRange } from 'react-native-graph/lib/typescript/LineGraphProps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useThemeColors } from '../../../utils/ColorTheme';
+import { LineGraph } from 'react-native-graph';
 
 const COLOR = '#6a7ee7';
 const GRADIENT_FILL_COLORS = ['#7476df5D', '#7476df4D', '#7476df00'];
@@ -49,6 +50,16 @@ export function GraphPage({
   const insets = useSafeAreaInsets();
   const { colors } = useThemeColors();
 
+
+
+    const renderCount = useRef(0);
+    useEffect(() => {
+      console.log('MainGRaph mounted');
+      return () => console.log('MainGRaph unmounted');
+    }, []);
+    renderCount.current += 1;
+  
+    console.log(`MainGRaph rendered ${renderCount.current} times`);
   // ---------------------------
   // Memoize normalized points
   // ---------------------------
@@ -76,13 +87,15 @@ export function GraphPage({
     };
   }, [enableRange, normalizedPoints]);
 
+  
   return (
     <View style={[styles.container, { backgroundColor: colors.secondBackground }]}>
-      <LineGraph
+      <LineGraph 
+  animated={true}
+        color={COLOR}
+
         style={styles.graph}
         points={normalizedPoints}
-        animated={isAnimated}
-        color={COLOR}
         // gradientFillColors={enableGradient ? GRADIENT_FILL_COLORS : undefined}
         enablePanGesture={enablePanGesture}
         panGestureDelay={0}

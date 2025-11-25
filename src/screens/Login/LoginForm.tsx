@@ -4,11 +4,9 @@ import LinearGradient from 'react-native-linear-gradient';
 
 import {
   Image,
-  KeyboardAvoidingView,
-  Platform,
+
   ScrollView,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
   useWindowDimensions,
@@ -20,7 +18,6 @@ import { TokenType } from '../../redux/slices/authSlice';
 import GoogleLogo from '../../assets/logo/google_logo.svg';
 // import { center } from '@shopify/react-native-skia';
 import { useThemeColors } from '../../utils/ColorTheme';
-import { useNavigation } from '@react-navigation/native';
 import api from '../../services';
 
 
@@ -92,7 +89,6 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
     }
   };
 
-  const { width } = useWindowDimensions();
 
   return (
     <SafeAreaView
@@ -102,10 +98,7 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
         paddingHorizontal: 10,
       }}
     >
-      <KeyboardAvoidingView
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      >
+
         <ScrollView
           contentContainerStyle={{ flexGrow: 1, padding: 16 }}
           keyboardShouldPersistTaps="handled"
@@ -219,7 +212,6 @@ export const LoginForm = ({ onSubmit = () => {} }: any) => {
 
           </View>
         </ScrollView>
-      </KeyboardAvoidingView>
     </SafeAreaView>
   );
 };

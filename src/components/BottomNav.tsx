@@ -1,7 +1,12 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 
-import { RouteProp, useNavigation, useRoute } from '@react-navigation/native';
+import {
+  RouteProp,
+  useNavigation,
+  useNavigationState,
+  useRoute,
+} from '@react-navigation/native';
 import {
   MessagesSquare,
   CircleUser,
@@ -24,13 +29,28 @@ type NavItem = {
 };
 
 export default function BottomNav() {
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('bottomnav mounted');
+    return () => console.log('bottomnav unmounted');
+  }, []);
+  renderCount.current += 1;
+
+  console.log(`bottomnav rendered ${renderCount.current} times`);
   const navigation = useNavigation<BottomNavProp>();
-  const route =
-    useRoute<RouteProp<AppStackParamList, keyof AppStackParamList>>();
+  // const route =
+  //   useRoute<RouteProp<AppStackParamList, keyof AppStackParamList>>();
 
   const { colors } = useThemeColors();
 
-  const activeRoute = route.name as keyof AppStackParamList;
+const activeRoute = useNavigationState((state) => {
+  // Get the current route of MainTabs navigator
+  const mainTabs = state.routes.find(r => r.name === 'MainTabs');
+  if (!mainTabs || !mainTabs.state) return '';
+  const nestedIndex = mainTabs.state.index;
+  return mainTabs.state.routes[nestedIndex].name;
+}) as keyof AppStackParamList;
+
 
   const navItems1: NavItem[] = [
     { name: 'Analysis', icon: ChartPie, route: 'Analysis' },
@@ -48,7 +68,7 @@ export default function BottomNav() {
   ];
 
   const renderNavItem = (item: NavItem) => {
-    const isActive = activeRoute === item.route;
+  const isActive = activeRoute === item.route;
 
     return (
       <TouchableOpacity
@@ -56,8 +76,13 @@ export default function BottomNav() {
         style={styles.navButton}
         onPress={() =>
           item.params
-            ? navigation.navigate(item.route as any, item.params)
-            : navigation.navigate(item.route as any)
+            ? navigation.navigate('MainTabs', {
+                screen: item.route,
+                params: item.params,
+              })
+            : navigation.navigate('MainTabs', {
+                screen: item.route,
+              })
         }
       >
         {isActive ? (
@@ -92,10 +117,7 @@ export default function BottomNav() {
 
       <TouchableOpacity
         style={[styles.navButton, styles.centerButton]}
-        onPress={() => {
-          console.log('wokring');
-          navigation.navigate('Home');
-        }}
+        onPress={() => navigation.navigate('MainTabs', { screen: 'Home' })}
       >
         <Image
           source={require('../assets/logo/portfolio.png')}

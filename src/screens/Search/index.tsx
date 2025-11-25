@@ -123,7 +123,6 @@ const SearchScreen = () => {
   const showSkeleton = !isTransitionFinished || isDataLoading;
   const keyExtractor = useCallback((item: Company) => item.symbol, []);
   return (
-    <BottomNavLayout>
       <SafeAreaView
         style={[styles.safeArea, { backgroundColor: colors.background }]}
       >
@@ -187,7 +186,6 @@ const SearchScreen = () => {
           </View>
         </KeyboardAvoidingView>
       </SafeAreaView>
-    </BottomNavLayout>
   );
 };
 

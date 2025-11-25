@@ -30,6 +30,17 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_PANEL_HEIGHT = SCREEN_HEIGHT * 0.5; // Max height = 50% of screen
 
 const SummaryDisplay = () => {
+
+
+    const renderCount = useRef(0);
+    useEffect(() => {
+      console.log('Summaryu DAta mounted');
+      return () => console.log('Summaryu DAta unmounted');
+    }, []);
+    renderCount.current += 1;
+  
+    console.log(`Summaryu DAta rendered ${renderCount.current} times`);
+
   // --- Data Fetching ---
   const selectedPortfolio = useSelector(
     (state: RootState) => state.portfolio.selectedPortfolio,

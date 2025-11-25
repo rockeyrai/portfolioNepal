@@ -6,12 +6,62 @@ import graphQuerry from '../../../services/graph';
 import SortUpSvg from '../../../assets/svg/sortup';
 import SortDownSvg from '../../../assets/svg/sortdown';
 import { useThemeColors } from '../../../utils/ColorTheme';
-import { Cookie } from 'lucide-react-native';
+import { LineChart } from 'react-native-gifted-charts';
 
 const MainNepseGraph = () => {
   const { data: NepseSummaryData = [] } = marketQuerry.getNepseSummary();
   const { data: nepseGraphData } = graphQuerry.getNepseDayGraph();
   const { colors } = useThemeColors();
+  const lineData = [
+    { value: 50, dataPointText: '50' },
+    { value: 40, dataPointText: '10' },
+    { value: 30, dataPointText: '30' },
+    { value: 58, dataPointText: '58' },
+    { value: 56, dataPointText: '56' },
+    { value: 78, dataPointText: '78' },
+    { value: 74, dataPointText: '74' },
+    { value: 98, dataPointText: '98' },
+  ];
+
+  const lineData2 = [
+    { value: 0, dataPointText: '0' },
+    { value: 20, dataPointText: '20' },
+    { value: 18, dataPointText: '18' },
+    { value: 40, dataPointText: '40' },
+    { value: 36, dataPointText: '36' },
+    { value: 60, dataPointText: '60' },
+    { value: 54, dataPointText: '54' },
+    { value: 85, dataPointText: '85' },
+  ];
+  console.log('graph data', nepseGraphData);
+
+  function generateFakeData(count: number): [] {
+  const data = [];
+  let lastClose = 2600; // starting point
+
+  for (let i = 0; i < count; i++) {
+    const open = lastClose + (Math.random() - 0.5) * 10;
+    const high = open + Math.random() * 10;
+    const low = open - Math.random() * 10;
+    const close = low + Math.random() * (high - low);
+
+    data.push({
+      id: 243 + i,                // unique id
+      t: (1763889300 + i * 60).toString(), // timestamp increments by 60
+      o: parseFloat(open.toFixed(2)),
+      h: parseFloat(high.toFixed(2)),
+      l: parseFloat(low.toFixed(2)),
+      c: parseFloat(close.toFixed(2)),
+      type: 1,
+      v: Math.floor(Math.random() * 10),   // random integer
+    });
+
+    lastClose = close; // next iteration uses last close
+  }
+
+  return data;
+}
+
 
   return (
     <View
@@ -43,9 +93,16 @@ const MainNepseGraph = () => {
               gap: 6,
             }}
           >
-            <Text style={{ fontSize: 18, fontWeight: 700 ,color:colors.text}}> NEPSE</Text>
+            <Text style={{ fontSize: 18, fontWeight: 700, color: colors.text }}>
+              {' '}
+              NEPSE
+            </Text>
             <Text
-              style={{ fontSize: 12, fontWeight: 400 ,color:colors.secondaryText }}
+              style={{
+                fontSize: 12,
+                fontWeight: 400,
+                color: colors.secondaryText,
+              }}
             >{`(${NepseSummaryData?.schange})`}</Text>
           </View>
           <View
@@ -65,7 +122,9 @@ const MainNepseGraph = () => {
                 gap: 12,
               }}
             >
-              <Text style={{ fontSize: 14, fontWeight: 700, color:colors.text }}>
+              <Text
+                style={{ fontSize: 14, fontWeight: 700, color: colors.text }}
+              >
                 {NepseSummaryData?.currentValue}
               </Text>
               <View
@@ -120,8 +179,12 @@ const MainNepseGraph = () => {
               alignItems: 'center',
             }}
           >
-            <Text style={[styles.rangeTitle,{color:colors.text}]}>Hig: </Text>
-            <Text style={[styles.rangeValue,{color:colors.text}]}>5434</Text>
+            <Text style={[styles.rangeTitle, { color: colors.text }]}>
+              Hig:{' '}
+            </Text>
+            <Text style={[styles.rangeValue, { color: colors.text }]}>
+              5434
+            </Text>
           </View>
           <View
             style={{
@@ -131,12 +194,39 @@ const MainNepseGraph = () => {
               alignItems: 'center',
             }}
           >
-            <Text style={[styles.rangeTitle,{color:colors.text}]}>Low: </Text>
-            <Text style={[styles.rangeValue,{color:colors.text}]}>4321</Text>
+            <Text style={[styles.rangeTitle, { color: colors.text }]}>
+              Low:{' '}
+            </Text>
+            <Text style={[styles.rangeValue, { color: colors.text }]}>
+              4321
+            </Text>
           </View>
         </View>
       </View>
-      <GraphPage points={nepseGraphData} />
+      <GraphPage points={generateFakeData(50)} />
+      {/* <View>
+        <LineChart
+          animationDuration={5000}
+          onDataChangeAnimationDuration={2000}
+          isAnimated
+          data={lineData}
+          // data2={lineData2}
+          height={150}
+          width={200}
+          thickness={3}
+          adjustToWidth
+          curved
+          curveType={1}
+          curvature={0.9}
+          hideRules
+          hideDataPoints1
+          hideAxesAndRules
+          color1="skyblue"
+          animateOnDataChange
+          onDataChangeAnimationDuration={300}
+          textFontSize={13}
+        />
+      </View> */}
     </View>
   );
 };
@@ -147,7 +237,7 @@ const styles = StyleSheet.create({
   rangeTitle: {
     fontSize: 10,
   },
-    rangeValue: {
+  rangeValue: {
     fontSize: 12,
   },
 });

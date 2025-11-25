@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useCallback } from 'react';
+import React, { useState, useRef, useMemo, useCallback, useEffect } from 'react';
 import { Text, View, TouchableOpacity, Animated } from 'react-native';
 import { ChevronDownIcon, LineChart } from 'lucide-react-native';
 import marketQuery from '../../../services/market/index';
@@ -112,6 +112,16 @@ const SubIndexItem = React.memo(({ item, colors, subIcons }) => {
 });
 
 const SubIndices = () => {
+    const renderCount = useRef(0);
+    useEffect(() => {
+      console.log('subindex component mounted');
+      return () => console.log('subindex component unmounted');
+    }, []);
+    renderCount.current += 1;
+  
+    console.log(`subindex component rendered ${renderCount.current} times`);
+
+
   const { data: subIndexList = [] } = marketQuery.getSubIndexSummary();
   const { colors } = useThemeColors();
 

@@ -18,7 +18,6 @@ import { useThemeColors } from "../../utils/ColorTheme";
 import ExpandCard from "../../components/cards/ExpandCard";
 import Slicecard from "../../components/cards/SliceCard";
 import ThemeToggle from "../../components/ui/CustomeThemeToggle";
-import BottomNavLayout from "../../layouts/BottomNav";
 
 interface Section {
   id: string;
@@ -45,7 +44,6 @@ const ProfileScreen=()=> {
   ];
 
   return (
-    <BottomNavLayout>
     <ScrollView
       showsVerticalScrollIndicator={false}
       showsHorizontalScrollIndicator={false}
@@ -172,7 +170,6 @@ const ProfileScreen=()=> {
         </View>
       </View>
     </ScrollView>
-    </BottomNavLayout>
 
   );
 }

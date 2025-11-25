@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import HomeScreen from '../screens/Home';
 import ProfileScreen from '../screens/Profile';
@@ -19,12 +19,20 @@ import {
 } from '../redux/slices/selecetedportfolio';
 import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
 import { setPortfolioDetails } from '../redux/slices/userPortfolios';
-import BottomNavLayout from '../layouts/BottomNav';
-import BottomNav from '../components/BottomNav';
+import BottomTabs from './appStack/BottomTabs';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppStack = () => {
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('AppStack mounted');
+    return () => console.log('AppStack unmounted');
+  }, []);
+  renderCount.current += 1;
+
+  console.log(`AppStack rendered ${renderCount.current} times`);
+
   const { colors } = useThemeColors();
   const dispatch = useDispatch<AppDispatch>();
   const { status } = useSelector((state: RootState) => state.auth);
@@ -88,69 +96,15 @@ const AppStack = () => {
     return null;
   }
 
-  function ScreenLayout({ children }) {
   return (
-    <>
-      {children}
-      <BottomNav />
-    </>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MainTabs" component={BottomTabs} />
+
+      {/* screens WITHOUT bottom nav */}
+      <Stack.Screen name="Search" component={SearchScreen} />
+      <Stack.Screen name="Company" component={CompanyScreen} />
+    </Stack.Navigator>
   );
-}
-
-
-return (
-  <Stack.Navigator screenOptions={{ headerShown: false }}>
-    <Stack.Screen
-      name="Home"
-      component={() => (
-        <ScreenLayout>
-          <HomeScreen />
-        </ScreenLayout>
-      )}
-    />
-
-    <Stack.Screen
-      name="Profile"
-      component={() => (
-        <ScreenLayout>
-          <ProfileScreen />
-        </ScreenLayout>
-      )}
-    />
-
-    <Stack.Screen
-      name="Analysis"
-      component={() => (
-        <ScreenLayout>
-          <AnalysisScreen />
-        </ScreenLayout>
-      )}
-    />
-
-    <Stack.Screen
-      name="Service"
-      component={() => (
-        <ScreenLayout>
-          <ServiceScreen />
-        </ScreenLayout>
-      )}
-    />
-
-    <Stack.Screen
-      name="Copilot"
-      component={() => (
-        <ScreenLayout>
-          <CopilotScreen />
-        </ScreenLayout>
-      )}
-    />
-
-    <Stack.Screen name="Search" component={SearchScreen} />
-    <Stack.Screen name="Company" component={CompanyScreen} />
-  </Stack.Navigator>
-);
-
-
 };
 
 export default AppStack;

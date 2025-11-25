@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   View,
   Image,
@@ -28,7 +28,14 @@ export default function ProfileHeader() {
   const routeProfile = useNavigation<ProfileRoute>();
   const routeSearch = useNavigation<SearchRoute>();
 
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('header component mounted');
+    return () => console.log('header component unmounted');
+  }, []);
+  renderCount.current += 1;
 
+  console.log(`header component rendered ${renderCount.current} times`);
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]}>
       {/* Left Section */}
