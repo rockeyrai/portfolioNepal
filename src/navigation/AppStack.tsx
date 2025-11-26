@@ -41,6 +41,7 @@ const AppStack = () => {
     ? userPortfoliosResponse
     : userPortfoliosResponse?.data ?? [];
 
+    console.log("linked portfolio",userPortfoliosResponse)
   useEffect(() => {
     const initPortfolios = async () => {
       if (isPortfolioLoading || !userPortfoliosResponse) {
@@ -71,7 +72,8 @@ const AppStack = () => {
     (state: RootState) => state.portfolio.selectedPortfolio,
   );
   console.log('selsected portfolio:', selectPortfolio);
-  const portfolioId = selectedPortfolio?.id ?? 0;
+  const portfolioId = selectedPortfolio?.id ;
+   console.log("portfoli id ",portfolioId)
 
   useEffect(() => {
     const fetchstockDAta = async () => {
@@ -82,7 +84,8 @@ const AppStack = () => {
       dispatch(setPortfolioDetails(data?.data?.dataList));
     };
 
-    fetchstockDAta();
+    if(portfolioId)    fetchstockDAta();
+
   }, [portfolioId]);
 
   // Show splash until auth & portfolios are ready

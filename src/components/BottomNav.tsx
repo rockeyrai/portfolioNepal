@@ -15,7 +15,7 @@ const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const navItems = [
   { name: 'Analysis', icon: ChartPie, route: 'Analysis' },
-  { name: 'Service', icon: SquareLibrary, route: 'Service' },
+  { name: 'Test', icon: SquareLibrary, route: 'Test' },
   { name: 'Home', icon: null, route: 'Home' },
   { name: 'Copilot', icon: MessagesSquare, route: 'Copilot' },
   { name: 'Profile', icon: CircleUser, route: 'Profile' },

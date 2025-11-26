@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Image,
@@ -6,7 +6,6 @@ import {
   Text,
   TouchableOpacity,
   Animated,
-
 } from 'react-native';
 import { useThemeColors } from '../../../utils/ColorTheme';
 import { useAuth } from '../../../core/auth';
@@ -15,6 +14,8 @@ import { useNavigation } from '@react-navigation/native';
 import { SearchIcon } from 'lucide-react-native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppStackParamList } from '../../../navigation/types';
+import { Dropdown } from 'react-native-element-dropdown';
+import CustomeDropdown from '../../ui/CustomeDropdown';
 
 type ProfileRoute = NativeStackNavigationProp<AppStackParamList, 'Profile'>;
 type SearchRoute = NativeStackNavigationProp<AppStackParamList, 'Search'>;
@@ -28,6 +29,14 @@ export default function ProfileHeader() {
   const routeProfile = useNavigation<ProfileRoute>();
   const routeSearch = useNavigation<SearchRoute>();
 
+  const filterOptions = [
+    { label: 'Today', value: 'Today' },
+    { label: 'Weeak', value: 'Weeak' },
+    { label: 'Month', value: 'Month' },
+  ];
+  const [selectedFilter, setSelectedFilter] = useState<
+    'Today' | 'Weeak' | 'Month'
+  >('Today');
   const renderCount = useRef(0);
   useEffect(() => {
     console.log('header component mounted');
@@ -69,10 +78,17 @@ export default function ProfileHeader() {
           onPress={() => routeSearch.navigate('Search')}
           activeOpacity={0.7}
         >
-          <SearchIcon color={colors.text} />
+          <SearchIcon strokeWidth={1} size={18} color={colors.text} />
         </TouchableOpacity>
 
-        <BellButton count={6} />
+        <BellButton count={0} />
+        <View style={{ width: 80 }}>
+          <CustomeDropdown
+            filterOptions={filterOptions}
+            selectedFilter={selectedFilter}
+            setselectedFilter={setSelectedFilter}
+          />
+        </View>
       </View>
     </View>
   );
@@ -112,16 +128,17 @@ const styles = StyleSheet.create({
   rightSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: 4,
     flex: 1,
     justifyContent: 'flex-end',
+    width: '100%',
   },
   searchicon: {
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    width: 40,
-    height: 40,
+    width: 35,
+    height: 35,
     borderRadius: 25,
   },
 });

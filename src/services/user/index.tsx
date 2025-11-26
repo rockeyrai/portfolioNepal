@@ -21,7 +21,9 @@ const getUserLinkPortfolio = () => {
   return useQuery({
     queryKey: ['link_portfolio'],
     queryFn: async () => {
+      console.log("working")
       const { data } = await api.get('/adv-portfolio/portfolio/user');
+      console.log('linked portfolio api', {data});
       if (Array.isArray(data)) return data;
       if (Array.isArray(data?.data)) return data.data;
 
@@ -37,12 +39,16 @@ const getPortfolioDetails = (portfolioId: string | number) => {
       const { data } =
         await api.get(`/adv-portfolio/portfolio/stocks/${portfolioId}?performanceType=&timePeriod=
 `);
-console.log("portfoli id:",portfolioId)
-console.log("main api portoflio list",data)
+      console.log('portfoli id:', portfolioId);
+      console.log('main api portoflio list', data);
       if (data?.data) return data.data;
 
       return data;
     },
   });
 };
-export default { getUserLinkPortfolio, getUserTotalPortfolio ,getPortfolioDetails};
+export default {
+  getUserLinkPortfolio,
+  getUserTotalPortfolio,
+  getPortfolioDetails,
+};
