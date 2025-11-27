@@ -4,32 +4,35 @@ import { useThemeColors } from '../../utils/ColorTheme';
 import { Text, View } from 'react-native';
 
 
-type FilterType = 'Today' | 'Weeak' | 'Month';
 
 interface DropdownProps {
-  filterOptions: { label: string; value: FilterType }[];
-  selectedFilter: FilterType;
-  setselectedFilter: (value: FilterType) => void;
+  filterOptions: { label: string; value: any }[];
+  selectedFilter: any;
+  setselectedFilter: (value: any) => void;
   dropDownWith: number 
+  placeHolder:string
 }
 
 const CustomeDropdown: React.FC<DropdownProps> = ({
   filterOptions,
   selectedFilter,
   setselectedFilter,
-  dropDownWith
+  dropDownWith,
+  placeHolder,
 }) => {
   const { colors } = useThemeColors();
 
+  console.log("dorpdown fucntion option",filterOptions)
   return (
     <View style={{width:dropDownWith}}>
     <Dropdown
       data={filterOptions}
       labelField="label"
       valueField="value"
+      
       value={selectedFilter}
       onChange={item => setselectedFilter(item.value)}
-      placeholder="Filter"
+      placeholder={placeHolder}
       iconColor={colors.text}
       style={{
         // borderColor: colors.border,
@@ -38,7 +41,8 @@ const CustomeDropdown: React.FC<DropdownProps> = ({
         paddingHorizontal: 10,
         paddingVertical: 6,
         width: "100%",
-        backgroundColor: colors.secondBackground,
+        borderColor:colors.dropdown,
+        backgroundColor: colors.dropdown,
       }}
       activeColor={colors.tabActive}
       containerStyle={{

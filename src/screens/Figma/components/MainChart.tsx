@@ -15,6 +15,10 @@ const MainChart = () => {
     { value: 74 },
     { value: 98 },
     { value: 85 },
+        { value: 40 },
+    { value: 36 },
+    { value: 60 },
+    { value: 54 },
   ];
   const lineData2 = [
     { value: 100 },
@@ -26,6 +30,10 @@ const MainChart = () => {
     { value: 54 },
     { value: 85 },
     { value: 98 },
+    { value: 56 },
+    { value: 140 },
+    { value: 40 },
+    { value: 30 },
   ];
 
   const { width: mobileWidth } = Dimensions.get('window');
@@ -39,6 +47,11 @@ const MainChart = () => {
           width: mobileWidth,
           borderBottomColor: colors.secondBackground,
           borderBottomWidth: 2,
+          display:'flex',
+          justifyContent:"center",
+          alignItems:'center',
+          paddingHorizontal:'auto'
+
         }}
       >
         <LineChart
@@ -48,10 +61,9 @@ const MainChart = () => {
           data={lineData}
           data2={lineData2}
           height={100}
-          width={mobileWidth * 0.85}
-          xAxisLength={0}
+          width={mobileWidth *0.8}
           thickness={1}
-          endSpacing={23}
+          // endSpacing={23}
           // showVerticalLines
           adjustToWidth
           backgroundColor={colors.background}
@@ -65,9 +77,12 @@ const MainChart = () => {
           hideAxesAndRules
           hideYAxisText
           color1="red"
+          initialSpacing={0}
           color2="green"
           animateOnDataChange
           textFontSize={13}
+          xAxisTextNumberOfLines={0}
+          yAxisTextNumberOfLines={0}
         />
       </View>
       <View
@@ -77,8 +92,8 @@ const MainChart = () => {
           alignItems: 'center',
           width: '100%',
           flexDirection: 'row',
-          gap:16,
-          backgroundColor:colors.background
+          gap: 16,
+          backgroundColor: colors.background,
         }}
       >
         <View

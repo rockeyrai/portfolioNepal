@@ -10,15 +10,19 @@ import { ChartPie, SquareLibrary, MessagesSquare, CircleUser } from 'lucide-reac
 import LinearGradient from 'react-native-linear-gradient';
 import { GradientIcon, GradientText } from './ui/GradientText';
 import { useThemeColors } from '../utils/ColorTheme';
+import ChartSvg from "../assets/svg/chart.svg"
+import MdiSvg from "../assets/svg/mdi_chart-arc.svg"
+import mesageSvg from "../assets/svg/message-2.svg"
+import profileSvg from "../assets/svg/profile.svg"
 
 const AnimatedTouchable = Animated.createAnimatedComponent(TouchableOpacity);
 
 const navItems = [
-  { name: 'Analysis', icon: ChartPie, route: 'Analysis' },
-  { name: 'Test', icon: SquareLibrary, route: 'Test' },
+  { name: 'Analysis', icon: MdiSvg, route: 'Analysis' },
+  { name: 'Test', icon: ChartSvg, route: 'Test' },
   { name: 'Home', icon: null, route: 'Home' },
-  { name: 'Copilot', icon: MessagesSquare, route: 'Copilot' },
-  { name: 'Profile', icon: CircleUser, route: 'Profile' },
+  { name: 'Copilot', icon: mesageSvg, route: 'Copilot' },
+  { name: 'Profile', icon: profileSvg, route: 'Profile' },
 ];
 
 function BottomNav({ state, navigation }: BottomTabBarProps) {
@@ -39,12 +43,12 @@ function BottomNav({ state, navigation }: BottomTabBarProps) {
 
   return (
     <View style={[styles.container, { borderColor: colors.secondBackground }]}>
-      <LinearGradient
+      {/* <LinearGradient
         colors={['rgb(64,64,79)', 'rgb(28,28,33)']}
         start={{ x: 0.5, y: 0.2 }}
         end={{ x: 0.5, y: 1 }}
         style={styles.gradient}
-      />
+      /> */}
 
       {items.map((item) => {
         const isActive = activeRoute === item.route; // <-- FIXED
@@ -112,9 +116,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    height: 45,
-    borderRadius: 20,
+    height: 50,
+    borderRadius: 15,
     elevation: 4,
+    backgroundColor:"#0A0A0A"
     // overflow: 'hidden',
   },
   gradient: {
@@ -126,8 +131,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   centerImage: {
-    width: 35,
-    height: 35,
+    width: 40,
+    height: 40,
+
   },
   label: {
     marginTop: 2,
