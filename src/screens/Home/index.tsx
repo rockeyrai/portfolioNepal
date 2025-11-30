@@ -32,7 +32,7 @@ const HomeScreen = () => {
         style={{ backgroundColor: colors.background }}
       >
         <SummaryDisplay />
-        <MainNepseGraph />
+        {/* <MainNepseGraph /> */}
         <MarketTab />
         <SubIndices />
         <HomeNews />

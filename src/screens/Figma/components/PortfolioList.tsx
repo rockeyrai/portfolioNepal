@@ -117,13 +117,13 @@ const PortfolioList = () => {
             gap: 8,
           }}
         >
-          <CustomeDropdown
+          {/* <CustomeDropdown
             filterOptions={filterOptions}
             selectedFilter={selectedFilter}
             setselectedFilter={setSelectedFilter}
             dropDownWith={110}
             placeHolder="Portfolio"
-          />
+          /> */}
           <Pressable
             style={{
               display: 'flex',

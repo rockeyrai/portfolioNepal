@@ -15,6 +15,9 @@ import { getSelectedPortfolio } from '../core/portfolio/portfolioStorage';
 import { setPortfolioDetails } from '../redux/slices/userPortfolios';
 import BottomTabs from './appStack/BottomTabs';
 import api from '../services';
+import { setTotalPortfolio } from '../redux/slices/portfolioSummary';
+import { setPortfolioColor } from '../redux/slices/portfolioColor';
+import { getPortfolioColor } from '../utils/portfolioColor';
 
 const Stack = createNativeStackNavigator<AppStackParamList>();
 
@@ -41,7 +44,7 @@ const AppStack = () => {
     ? userPortfoliosResponse
     : userPortfoliosResponse?.data ?? [];
 
-    console.log("linked portfolio",userPortfoliosResponse)
+  console.log('linked portfolio', userPortfoliosResponse);
   useEffect(() => {
     const initPortfolios = async () => {
       if (isPortfolioLoading || !userPortfoliosResponse) {
@@ -72,20 +75,31 @@ const AppStack = () => {
     (state: RootState) => state.portfolio.selectedPortfolio,
   );
   console.log('selsected portfolio:', selectPortfolio);
-  const portfolioId = selectedPortfolio?.id ;
-   console.log("portfoli id ",portfolioId)
+  const portfolioId = selectedPortfolio?.id;
+  console.log('portfoli id ', portfolioId);
 
   useEffect(() => {
     const fetchstockDAta = async () => {
       const { data } =
         await api.get(`/adv-portfolio/portfolio/stocks/${portfolioId}?performanceType=&timePeriod=
 `);
-      console.log('use effect data', data?.data?.dataList);
+      // console.log('use effect data', data?.data?.dataList);
       dispatch(setPortfolioDetails(data?.data?.dataList));
     };
+    const fetchTotalPortfolio = async () => {
+      const { data } = await api.get(
+        `/mobile/user/total_portfolio/${portfolioId}`,
+      );
+      console.log('use effect data', data?.data);
+      dispatch(setTotalPortfolio(data?.data));
+    };
 
-    if(portfolioId)    fetchstockDAta();
-
+    if (portfolioId) {
+      fetchstockDAta();
+      fetchTotalPortfolio();
+      const color = getPortfolioColor(portfolioId, userPortfoliosResponse);
+      dispatch(setPortfolioColor(color));
+    }
   }, [portfolioId]);
 
   // Show splash until auth & portfolios are ready

@@ -9,7 +9,17 @@ import { ThemeProvider } from './utils/ColorTheme';
 import { hydrateAuthAction } from './redux/slices/authSlice';
 import AppNavigator from './navigation';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      refetchOnWindowFocus: false,
+    },
+    mutations: {
+      retry: 1,
+    },
+  },
+});
 
 const AppCover = () => {
   const dispatch = useDispatch<AppDispatch>();

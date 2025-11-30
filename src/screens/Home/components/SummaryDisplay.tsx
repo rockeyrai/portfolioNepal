@@ -30,16 +30,14 @@ const { height: SCREEN_HEIGHT } = Dimensions.get('window');
 const MAX_PANEL_HEIGHT = SCREEN_HEIGHT * 0.5; // Max height = 50% of screen
 
 const SummaryDisplay = () => {
+  const renderCount = useRef(0);
+  useEffect(() => {
+    console.log('Summaryu DAta mounted');
+    return () => console.log('Summaryu DAta unmounted');
+  }, []);
+  renderCount.current += 1;
 
-
-    const renderCount = useRef(0);
-    useEffect(() => {
-      console.log('Summaryu DAta mounted');
-      return () => console.log('Summaryu DAta unmounted');
-    }, []);
-    renderCount.current += 1;
-  
-    console.log(`Summaryu DAta rendered ${renderCount.current} times`);
+  console.log(`Summaryu DAta rendered ${renderCount.current} times`);
 
   // --- Data Fetching ---
   const selectedPortfolio = useSelector(
@@ -196,7 +194,7 @@ const SummaryDisplay = () => {
               {totalPortfolio?.percentage?.toFixed(2) ?? '--'}%
             </Text>
           </View>
-          <Text style={[styles.totalText,{color:colors.text}]}>
+          <Text style={[styles.totalText, { color: colors.text }]}>
             Rs.{totalPortfolio?.total?.toFixed(2) ?? '--'}
           </Text>
         </View>
@@ -271,10 +269,10 @@ const SummaryDisplay = () => {
                     style={[
                       styles.portfolioItem,
                       {
-                   backgroundColor:
-          selectedPortfolio?.id === item.id
-            ? colors.tabActive
-            : colors.secondBackground,
+                        backgroundColor:
+                          selectedPortfolio?.id === item.id
+                            ? colors.tabActive
+                            : colors.secondBackground,
                       },
                     ]}
                   >
@@ -283,7 +281,6 @@ const SummaryDisplay = () => {
                     >
                       {item.name}
                     </Text>
-
                     <View
                       style={{
                         display: 'flex',
@@ -292,20 +289,20 @@ const SummaryDisplay = () => {
                         alignItems: 'center',
                         gap: 6,
                       }}
-                      onPress={() => {
-                        console.log('edint');
-                      }}
                     >
-                      <View
+                      <TouchableOpacity
                         style={{
                           backgroundColor: colors.card,
                           borderRadius: 5,
                           padding: 1,
                         }}
+                        onPress={() => {
+                          console.log('edint');
+                        }}
                       >
                         <EditIcon color={colors.edit} size={20} />
-                      </View>
-                      <View
+                      </TouchableOpacity>
+                      <TouchableOpacity
                         style={{
                           backgroundColor: colors.card,
                           borderRadius: 5,
@@ -316,7 +313,7 @@ const SummaryDisplay = () => {
                         }}
                       >
                         <Trash2 color={colors.negative} size={20} />
-                      </View>
+                      </TouchableOpacity>
                     </View>
                   </TouchableOpacity>
                 ))}

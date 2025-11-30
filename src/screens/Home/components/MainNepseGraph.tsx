@@ -2,15 +2,16 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { GraphPage } from '../../../components/parts/mainGraph';
 import marketQuerry from '../../../services/market';
-import graphQuerry from '../../../services/graph';
 import SortUpSvg from '../../../assets/svg/sortup';
 import SortDownSvg from '../../../assets/svg/sortdown';
 import { useThemeColors } from '../../../utils/ColorTheme';
 import { LineChart } from 'react-native-gifted-charts';
+import graphQuerry from "./../../../services/graph"
 
 const MainNepseGraph = () => {
   const { data: NepseSummaryData = [] } = marketQuerry.getNepseSummary();
   const { data: nepseGraphData } = graphQuerry.getNepseDayGraph();
+  console.log(nepseGraphData)
   const { colors } = useThemeColors();
   const lineData = [
     { value: 50, dataPointText: '50' },

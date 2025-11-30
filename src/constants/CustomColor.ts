@@ -3,7 +3,7 @@ export const CustomColors = {
   warning: '#DFA100',
 
   dark: {
-    text: '#E5E5E5',
+    text: '#ffffff',
     optext: '#1F1F1F',
     background: '#1C1C21',
     secondBackground: '#212328',
@@ -41,7 +41,6 @@ export const CustomColors = {
     button: '#6366F1',
     edit: '#A0A0A5',
     dropdown: '#40404F',
-
     navBackground: '#FFFFFF',
     positive: '#16A34A',
     negative: '#DC2626',
@@ -57,3 +56,6 @@ export const CustomColors = {
     backdrop: 'rgba(0,0,0,0.2)',
   },
 };
+               
+
+

@@ -16,11 +16,34 @@ const GRADIENT_FILL_COLORS = ['#7476df5D', '#7476df4D', '#7476df00'];
 const normalizeApiPoints = (raw: any[]) => {
   if (!raw || raw.length === 0) return [];
 
-  return raw.map(item => ({
-    date: new Date(Number(item.t) * 1000), // must be Date object
-    value: Number(item.l), // price
-  }));
+  return raw.map(item => {
+    const timestamp = item.t * 1000;
+    const date = new Date(timestamp);
+    console.log('date object', date); // shows Date
+    console.log('date ISO string', date.toISOString()); // more readable
+    const d = new Date();
+    console.log(d); // shows {}
+    console.log(d.toISOString()); // shows full date string
+    console.log(d.getTime()); // shows timestamp
+
+    return {
+  date: item.t * 1000, // as number
+      value: Number(item.l),
+    };
+  });
+
+  // });
+  // return raw.map(item => ({
+
+  //   date: new Date(Number(item.t) * 1000).toISOString(),
+  //   value: Number(item.l),
+  // }));
 };
+
+console.log(
+  'Converted Date:',
+  new Date(Number(1764135384) * 1000).toISOString(),
+);
 
 export type GraphPageProps = {
   points: any[]; // Raw API points
@@ -70,14 +93,22 @@ export function GraphPage({
     if (!enableRange || normalizedPoints.length === 0) return undefined;
 
     const values = normalizedPoints.map(p => p.value);
+    const dates = normalizedPoints.map(p => p.date);
+
     const minY = Math.min(...values);
     const maxY = Math.max(...values);
-    const padding = (maxY - minY) * 0.0;
+
+    const minX = new Date(Math.min(...dates.map(d => d.getTime())));
+    const maxX = new Date(Math.max(...dates.map(d => d.getTime())));
 
     return {
+      x: {
+        min: minX,
+        max: maxX,
+      },
       y: {
-        min: minY - padding,
-        max: maxY + padding,
+        min: minY,
+        max: maxY,
       },
     };
   }, [enableRange, normalizedPoints]);
@@ -87,7 +118,6 @@ export function GraphPage({
       style={[styles.container, { backgroundColor: colors.secondBackground }]}
     >
       <LineGraph
-
         style={styles.graph}
         points={normalizedPoints}
         // gradientFillColors={enableGradient ? GRADIENT_FILL_COLORS : undefined}
@@ -97,7 +127,7 @@ export function GraphPage({
           'worklet';
           selectedPointValue.value = point.value;
         }}
-                animated={true}
+        animated={true}
         color={COLOR}
         onGestureEnd={() => {}}
         SelectionDot={enableCustomSelectionDot ? SelectionDot : undefined}

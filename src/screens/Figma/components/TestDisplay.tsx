@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Text, View, StyleSheet } from 'react-native';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../../redux/store'; // Adjust path if needed
 import userQuerry from '../../../services/user'; // Adjust path if needed
 import { useThemeColors } from '../../../utils/ColorTheme';
 import { TrendingUp } from 'lucide-react-native';
+import { selectPortfolioSummary } from '../../../redux/slices/portfolioSummary';
+import CustomeDropdown from '../../../components/ui/CustomeDropdown';
+import { setPortfolioSector } from '../../../redux/slices/selectedSector';
 
 const TestDisplay = () => {
   const renderCount = useRef(0);
@@ -15,6 +18,42 @@ const TestDisplay = () => {
   }, []);
   renderCount.current += 1;
 
+
+
+  const list = useSelector((state: RootState) => state.userPortfolio.byId);
+  // const allIds = useSelector((state: RootState) => state.userPortfolio.allIds);
+
+  const sectorOptions = React.useMemo(() => {
+    if (!list) return [];
+
+    const sectors = Object.values(list)
+      .map(item => item.sectorName)
+      .filter(Boolean); // remove null/undefined
+
+    const unique = Array.from(new Set(sectors));
+
+    return unique.map(sec => ({
+      label: sec,
+      value: sec,
+    }));
+  }, [list]);
+
+  console.log("filer section",sectorOptions)
+
+const dispatch = useDispatch();
+const selectedSector = useSelector(
+  (state: RootState) => state.portfolioSector.Sector
+);
+    const portfolioColor = useSelector(
+    (state: RootState) => state.portfolioColor.color,
+  );
+const [selectedFilter, setSelectedFilter] = useState(selectedSector);
+
+const handleSectorChange = (value: string) => {
+  setSelectedFilter(value);      // local UI update
+  dispatch(setPortfolioSector(value));  // 🔥 save to Redux
+};
+
   console.log(`Summaryu DAta rendered ${renderCount.current} times`);
 
   // --- Data Fetching ---
@@ -23,8 +62,7 @@ const TestDisplay = () => {
   );
   const portfolioId = selectedPortfolio?.id ?? 0;
   if (!portfolioId) return null; //make a component to show  user did not have id
-  const { data: totalPortfolio = {} } =
-    userQuerry.getUserTotalPortfolio(portfolioId);
+  const totalPortfolio = useSelector(selectPortfolioSummary);
 
   const { colors } = useThemeColors();
 
@@ -45,7 +83,18 @@ const TestDisplay = () => {
             alignItems: 'center',
           }}
         >
-          <Text style={{ color: colors.secondaryText }}>Portfolio Value</Text>
+          {/* <Text style={{ color: colors.secondaryText }}>Portfolio Value</Text>
+           */}
+          <CustomeDropdown
+            filterOptions={sectorOptions}
+            selectedFilter={selectedFilter}
+            setselectedFilter={handleSectorChange}
+            dropDownWith={220}
+            placeHolder="Portfolio"
+            paddingH={8}
+            paddingV={2}
+            propBackground={portfolioColor+"cc"}
+          />
           <Text style={[styles.totalValue, { color: colors.text }]}>
             Rs {formatNumber(totalPortfolio?.totalPortfolioValue)}
           </Text>
