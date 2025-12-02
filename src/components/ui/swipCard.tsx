@@ -1,12 +1,15 @@
 import { ChevronDown, ChevronUp } from 'lucide-react-native';
-import React, { useRef, useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import {
   FlatList,
   Image,
   Pressable,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
+  Dimensions,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
@@ -17,13 +20,67 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useThemeColors } from '../../utils/ColorTheme';
 import Config from 'react-native-config';
-import { useAddSecondaryStock } from '../../services/portfolio';
-// import { CustomMiniGraph } from "../MinGraph";
-// import HeatmapRow from "./HeatMap";
-// import { CompanyLogo } from "../ui/customImage";
+import {
+  useAddSecondaryStock,
+  useSellSecondaryStock,
+} from '../../services/portfolio';
+import { Table, Row, Rows } from 'react-native-table-component';
+
+import {
+  Menu,
+  MenuOption,
+  MenuOptions,
+  MenuTrigger,
+} from 'react-native-popup-menu';
+import StockModal from './StockModal';
 
 const SWIPE_THRESHOLD = 90;
 const ANIMATION_DURATION = 200;
+const SCREEN_WIDTH = Dimensions.get('window').width;
+
+const StockTable = ({ stockListData }) => {
+  // Table headers
+  const tableHead = ['Name', 'Qty', 'P/L', 'Buy Price'];
+
+  // Map multidata into rows
+  const tableData = stockListData?.map(item => [
+    item.user_name,
+    item.quantity,
+    item.unreal_gain !== undefined ? Number(item.unreal_gain).toFixed(2) : '-',
+    item.buyPrice,
+  ]);
+
+  // Calculate dynamic height based on number of rows
+  const tableHeight = Math.min((tableData?.length || 0) * 40 + 40, 300); // 40px per row + header, max 300px
+
+  console.log('table prop', stockListData);
+  console.log('table data', tableData);
+
+  return (
+    <ScrollView
+      horizontal={true}
+      style={{ maxHeight: tableHeight }}
+      contentContainerStyle={{ minWidth: '100%' }}
+      showsHorizontalScrollIndicator={false}
+    >
+      <View style={{ width: SCREEN_WIDTH * 0.9, minWidth: 280 }}>
+        <Table borderStyle={{ borderWidth: 1, borderColor: '#C1C0B9' }}>
+          <Row
+            widthArr={[100, 60, 70, 90]}
+            data={tableHead}
+            style={styles.head}
+            textStyle={styles.tableText}
+          />
+          <Rows
+            widthArr={[100, 60, 70, 90]}
+            data={tableData}
+            textStyle={styles.tableText}
+          />
+        </Table>
+      </View>
+    </ScrollView>
+  );
+};
 
 export interface GraphDatatypes {
   t: number;
@@ -38,6 +95,8 @@ export interface Stock {
   change: number;
   heatmap?: number[];
   graph: GraphDatatypes[];
+  multi?: boolean;
+  multidata?: any[];
 }
 
 export interface StockListProps {
@@ -63,6 +122,7 @@ const SwipeableRow = ({
   const translateX = useSharedValue(0);
   const { colors } = useThemeColors();
 
+  console.log('stocklistdta,', stockListData);
   const close = () => {
     translateX.value = withTiming(0, { duration: ANIMATION_DURATION });
   };
@@ -80,8 +140,8 @@ const SwipeableRow = ({
 
   // Pan gesture
   const panGesture = Gesture.Pan()
-    .activeOffsetX([-2, 2]) // start only after horizontal movement
-    .failOffsetY([-60, 60]) // vertical movement cancels horizontal swipe
+    .activeOffsetX([-2, 2])
+    .failOffsetY([-60, 60])
     .onUpdate(e => {
       translateX.value = e.translationX;
     })
@@ -106,35 +166,45 @@ const SwipeableRow = ({
     translateX.value = withTiming(0, { duration: ANIMATION_DURATION });
   });
 
-  const combinedGesture = Gesture.Race(panGesture, tapGesture);
-
   const rowStyle = useAnimatedStyle(() => ({
     transform: [{ translateX: translateX.value }],
     backgroundColor:
-      translateX.value !== 0 ? colors.cardSecondary : colors.card, // use theme color when not swiped
+      translateX.value !== 0 ? colors.cardSecondary : colors.card,
   }));
 
   const leftBtnStyle = useAnimatedStyle(() => ({
     opacity: translateX.value > SWIPE_THRESHOLD / 2 ? 1 : 0,
   }));
+
   const rightBtnStyle = useAnimatedStyle(() => ({
     opacity: translateX.value < -SWIPE_THRESHOLD / 2 ? 1 : 0,
   }));
 
-  console.log(Config.COMPANY_LOGO_URL);
   const { mutate: handleAddSecondaryStock, isLoading } = useAddSecondaryStock();
+  const { mutate: handleSellSecondaryStock, isLoading: selling } =
+    useSellSecondaryStock();
+  const [modalBuyVisible, setBuyModalVisible] = useState(false);
+  const [modalSellVisible, setSellModalVisible] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
 
-    const buttonTapGesture = Gesture.Tap()
+  const longPressGesture = Gesture.LongPress()
+    .minDuration(300)
     .onStart(() => {
-      console.log('Button pressed', stockListData.symbol);
-      runOnJS(handleAddSecondaryStock)({
-        userStockId: stockListData.id,
-        Price: String(stockListData.ltp),
-        Quantity: String(stockListData.quantity),
-        Symbol: stockListData.symbol,
-        Name: stockListData.symbol,
-      });
+      console.log('working longpress');
+      if (stockListData?.multi) {
+        runOnJS(setMenuVisible)(true);
+      }
     });
+
+  const combinedGesture = Gesture.Race(
+    longPressGesture,
+    panGesture,
+    tapGesture,
+  );
+
+  // Calculate dynamic table height for menu positioning
+  const tableRowCount = stockListData?.multidata?.length || 0;
+  const dynamicTableHeight = Math.min(tableRowCount * 40 + 40, 300);
 
   return (
     <View style={styles.rowContainer}>
@@ -147,11 +217,26 @@ const SwipeableRow = ({
           { backgroundColor: colors.accent },
         ]}
       >
-        <Pressable
-          onPress={() => console.log('Left pressed', stockListData.symbol)}
-        >
+        <Pressable onPress={() => setSellModalVisible(true)}>
           <Text style={[styles.text, { color: colors.text }]}>Sell</Text>
         </Pressable>
+        <StockModal
+          visible={modalSellVisible}
+          type="sell"
+          stockData={stockListData}
+          onClose={() => setSellModalVisible(false)}
+          onSubmit={(sellPrice, sellQuantity, tax, soldStockId) =>
+            handleSellSecondaryStock({
+              stockId: stockListData.id,
+              multiStockId: soldStockId,
+              price: sellPrice,
+              quantity: sellQuantity,
+              capitalGain: tax,
+            })
+          }
+          defaultName={stockListData.symbol}
+          defaultQuantity={String(10)}
+        />
       </Animated.View>
 
       {/* Right action button */}
@@ -163,11 +248,26 @@ const SwipeableRow = ({
           { backgroundColor: colors.negative },
         ]}
       >
-        <GestureDetector gesture={buttonTapGesture}>
-          <Animated.View>
-            <Text style={[styles.text, { color: colors.text }]}>RIGHT</Text>
-          </Animated.View>
-        </GestureDetector>
+        <Pressable onPress={() => setBuyModalVisible(true)}>
+          <Text>RIGHT</Text>
+        </Pressable>
+
+        <StockModal
+          visible={modalBuyVisible}
+          onClose={() => setBuyModalVisible(false)}
+          type="buy"
+          onSubmit={(Name, Quantity) =>
+            handleAddSecondaryStock({
+              userStockId: stockListData.id,
+              Price: String(stockListData.ltp),
+              Quantity,
+              Symbol: stockListData.symbol,
+              Name,
+            })
+          }
+          defaultName={stockListData.symbol}
+          defaultQuantity={String(10)}
+        />
       </Animated.View>
 
       {/* Swipeable row */}
@@ -176,9 +276,7 @@ const SwipeableRow = ({
           style={[styles.listItem, rowStyle, { backgroundColor: colors.card }]}
         >
           <View style={styles.itemContainer}>
-            {/* Left section: logo + symbol/value */}
             <View style={styles.leftSection}>
-              {/* <CompanyLogo symbol={stockListData?.symbol} /> */}
               <Image
                 source={{
                   uri: `${Config.COMPANY_LOGO_URL}/${stockListData?.symbol}.webp`,
@@ -193,25 +291,21 @@ const SwipeableRow = ({
                 <Text style={[styles.value, { color: colors.secondaryText }]}>
                   Ltp {stockListData?.ltp ?? '--'}
                 </Text>
-                {/* <HeatmapRow data={stockListData?.heatmap} /> */}
               </View>
             </View>
 
-            {/* Center section: graph placeholder */}
-            {/* <Text style={[styles.graph, { color: colors.muted }]}>
-              Graph
-            </Text> */}
             <View style={{ width: 100, height: 50 }}>
               {/* <CustomMiniGraph data={stockListData?.graph ?? []} /> */}
             </View>
+
             {/* Right section: units + change */}
             <View style={styles.rightSection}>
               <Text style={[styles.units, { color: colors.secondaryText }]}>
                 {stockListData?.quantity ?? '--'} units
               </Text>
               <View style={styles.changeContainer}>
-                {stockListData?.change === 0 &&
-                stockListData?.change === null &&
+                {stockListData?.change === 0 ||
+                stockListData?.change === null ||
                 stockListData?.change === undefined ? (
                   ''
                 ) : stockListData?.change < 0 ? (
@@ -224,8 +318,8 @@ const SwipeableRow = ({
                     styles.changeText,
                     {
                       color:
-                        stockListData?.change === 0 &&
-                        stockListData?.change === null &&
+                        stockListData?.change === 0 ||
+                        stockListData?.change === null ||
                         stockListData?.change === undefined
                           ? colors.secondaryText
                           : stockListData?.change < 0
@@ -241,6 +335,35 @@ const SwipeableRow = ({
           </View>
         </Animated.View>
       </GestureDetector>
+
+      {/* Menu with dynamic positioning */}
+      <Menu
+        opened={menuVisible}
+        onBackdropPress={() => setMenuVisible(false)}
+        style={{
+          position: 'absolute',
+          top: -(dynamicTableHeight + 20), // Position above based on table height
+          alignSelf: 'center',
+          width: '100%',
+        }}
+      >
+        <MenuTrigger text="" />
+        <MenuOptions
+          optionsContainerStyle={{
+            width: SCREEN_WIDTH * 0.95,
+            borderRadius: 8,
+            backgroundColor: colors.secondBackground,
+            shadowColor: '#000',
+            shadowOffset: { width: 0, height: 2 },
+            shadowOpacity: 0.25,
+            shadowRadius: 3.84,
+            elevation: 5,
+            padding: 8,
+          }}
+        >
+          <StockTable stockListData={stockListData?.multidata} />
+        </MenuOptions>
+      </Menu>
     </View>
   );
 };
@@ -291,16 +414,11 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 1,
     justifyContent: 'center',
-    // display:"flex",
-    // alignItems:"center",
-    // flexDirection:"row",
-    // backgroundColor: 'red',
   },
   listItem: {
     height: 65,
     borderRadius: 12,
     justifyContent: 'center',
-    // paddingHorizontal: 5,
   },
   actionBtn: {
     position: 'absolute',
@@ -331,6 +449,8 @@ const styles = StyleSheet.create({
   units: { fontSize: 14 },
   changeContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 4 },
   changeText: { fontSize: 14, marginLeft: 4 },
+  head: { height: 40, backgroundColor: '#f1f8ff' },
+  tableText: { margin: 6, textAlign: 'center', fontSize: 12 },
 });
 
 export default TestSwip;

@@ -43,7 +43,7 @@ const MainChart = () => {
 
     return raw.map(item => ({
       // date: item.t * 1000,
-      value: Number(item.c),
+      value: Number(item?.c),
     }));
   };
   const selectedSector = useSelector(

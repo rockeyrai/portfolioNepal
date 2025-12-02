@@ -20,7 +20,7 @@ const StockList = () => {
   // 1️⃣ Prepare formatted list
   // -----------------------------------------------------
 
-  console.log("list data",list)
+  // console.log("list data",list)
   const formattedData = useMemo(() => {
     return allIds.map(id => {
       const item = list[id];
@@ -31,11 +31,13 @@ const StockList = () => {
         quantity: item?.quantity,
         change: Number(item?.perChange), // use number for sorting
         sector: item?.sectorName,
-        transactionId:item?.transactionId
-
+        transactionId:item?.transactionId,
+        multi:item?.has_multiple_transactions,
+        multidata:item?.user_transactions,
       };
     });
   }, [allIds, list]);
+  
 
   // -----------------------------------------------------
   // 2️⃣ Apply Sector Filter
